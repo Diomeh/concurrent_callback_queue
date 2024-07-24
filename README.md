@@ -48,6 +48,8 @@ for (let i = 0; i < 10; i++) {
 queue.start();
 ```
 
+More detailed examples can be found in the [tutorial](tutorials/concurrent-callback-queue.md) page. 
+
 ### Configuration Options
 
 The queue can be configured with the following options:
