@@ -101,14 +101,14 @@
     <h4 class="name" id="ConcurrentCallbackQueue"><span class="type-signature"></span>new ConcurrentCallbackQueue()</h4>
     
     
-    <p class="summary"><p>Cola de callbacks que se ejecutan de forma concurrente</p>.</p>
+    <p class="summary"><p>Concurrent callback queue</p>.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Cola de callbacks que se ejecutan de forma concurrente</p>
+        <p>Concurrent callback queue</p>
     </div>
     
 
@@ -127,7 +127,7 @@
 	<dt class="tag-version method-doc-label method-doc-details-label">Version:</dt>
 	<dd class="tag-version">
 		<ul class="dummy">
-			<li>1.0.0</li>
+			<li>0.8.0</li>
 		</ul>
 	</dd>
 	
@@ -157,7 +157,7 @@
 	<dt class="tag-author method-doc-label method-doc-details-label">Author:</dt>
 	<dd class="tag-author">
 		<ul>
-			<li>David Urbina</li>
+			<li>David Urbina (davidurbina.dev@gmail.com)</li>
 			</ul>
 	</dd>
 	
@@ -176,12 +176,19 @@
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-43">line 43</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-42">line 42</a>
 			</li>
 		</ul>
 	</dd>
 	
 
+	
+	<dt class="tag-tutorial method-doc-label method-doc-details-label">Tutorials:</dt>
+	<dd class="tag-tutorial">
+		<ul>
+			<li><a href="tutorial-concurrent-callback-queue.html">concurrent-callback-queue</a></li>
+			</ul>
+	</dd>
 	
 
 	
@@ -251,14 +258,14 @@ queue.start();</pre>
     <h4 class="name" id="clear"><span class="type-signature"></span>clear()</h4>
     
     
-    <p class="summary">Detiene la ejecución de la cola y elimina todos los callbacks de la misma.</p>
+    <p class="summary">Stops the execution of the queue and removes all callbacks from it.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Detiene la ejecución de la cola y elimina todos los callbacks de la misma.</p>
+        <p>Stops the execution of the queue and removes all callbacks from it.</p>
     </div>
     
 
@@ -305,7 +312,7 @@ queue.start();</pre>
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-354">line 354</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-345">line 345</a>
 			</li>
 		</ul>
 	</dd>
@@ -334,7 +341,7 @@ queue.start();</pre>
     
             
 <div class="param-desc">
-    <p>Lista de callbacks pendientes de ejecución</p>
+    <p>List of pending callbacks</p>
 </div>
 
 
@@ -365,14 +372,14 @@ queue.start();</pre>
     <h4 class="name" id="dequeue"><span class="type-signature"></span>dequeue()</h4>
     
     
-    <p class="summary">Elimina un callback pendiente de ejecución de la cola, sin detener la ejecución de la misma.</p>
+    <p class="summary">Removes a pending callback from the queue without stopping the queue execution.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Elimina un callback pendiente de ejecución de la cola, sin detener la ejecución de la misma.</p>
+        <p>Removes a pending callback from the queue without stopping the queue execution.</p>
     </div>
     
 
@@ -419,7 +426,7 @@ queue.start();</pre>
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-365">line 365</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-356">line 356</a>
 			</li>
 		</ul>
 	</dd>
@@ -448,7 +455,7 @@ queue.start();</pre>
     
             
 <div class="param-desc">
-    <p>Callback eliminado</p>
+    <p>Removed callback</p>
 </div>
 
 
@@ -479,14 +486,14 @@ queue.start();</pre>
     <h4 class="name" id="dequeueAll"><span class="type-signature"></span>dequeueAll()</h4>
     
     
-    <p class="summary">Elimina todos los callbacks pendientes de ejecución de la cola, sin detener la ejecución de la misma.</p>
+    <p class="summary">Removes all pending callbacks from the queue without stopping the queue execution.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Elimina todos los callbacks pendientes de ejecución de la cola, sin detener la ejecución de la misma.</p>
+        <p>Removes all pending callbacks from the queue without stopping the queue execution.</p>
     </div>
     
 
@@ -533,7 +540,7 @@ queue.start();</pre>
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-375">line 375</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-366">line 366</a>
 			</li>
 		</ul>
 	</dd>
@@ -562,7 +569,7 @@ queue.start();</pre>
     
             
 <div class="param-desc">
-    <p>Lista de callbacks pendientes de ejecución</p>
+    <p>List of pending callbacks</p>
 </div>
 
 
@@ -593,15 +600,15 @@ queue.start();</pre>
     <h4 class="name" id="enqueue"><span class="type-signature"></span>enqueue(callback [, retries])</h4>
     
     
-    <p class="summary">Agrega un callback a la cola, si autoStart está activado se inicia la ejecución de la cola.</p>
+    <p class="summary">Adds a callback to the queue, if autoStart is enabled the queue execution starts.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Agrega un callback a la cola, si autoStart está activado se inicia la ejecución de la cola.
-Puede especificar un número opcional de reintentos en caso de error.</p>
+        <p>Adds a callback to the queue, if autoStart is enabled the queue execution starts.
+You can specify an optional number of retries in case of an error.</p>
     </div>
     
 
@@ -669,7 +676,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
                 </td>
             
 
-            <td class="description last"><p>La función de callback a agregar a la cola.</p></td>
+            <td class="description last"><p>The callback function to add to the queue.</p></td>
         </tr>
 
     
@@ -709,7 +716,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
                 </td>
             
 
-            <td class="description last"><p>Número de intentos de reintentos en caso de error (opcional).</p></td>
+            <td class="description last"><p>Number of retry attempts in case of an error (optional).</p></td>
         </tr>
 
     
@@ -754,7 +761,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-161">line 161</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-162">line 162</a>
 			</li>
 		</ul>
 	</dd>
@@ -784,7 +791,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        <p>Si el callback no es una función o retries no es un número.</p>
+        <p>If the callback is not a function or retries is not a number.</p>
         </div>
     </dt>
     <dt>
@@ -838,15 +845,15 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
     <h4 class="name" id="enqueueAll"><span class="type-signature"></span>enqueueAll(callbacks [, retries])</h4>
     
     
-    <p class="summary">Agrega varios callbacks a la cola, si autoStart está activado se inicia la ejecución de la cola.</p>
+    <p class="summary">Adds multiple callbacks to the queue, if autoStart is enabled the queue execution starts.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Agrega varios callbacks a la cola, si autoStart está activado se inicia la ejecución de la cola.
-Puede especificar un número opcional de intentos de reintentos en caso de error.</p>
+        <p>Adds multiple callbacks to the queue, if autoStart is enabled the queue execution starts.
+You can specify an optional number of retry attempts in case of an error.</p>
     </div>
     
 
@@ -914,7 +921,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
                 </td>
             
 
-            <td class="description last"><p>El array de funciones de callback a agregar a la cola.</p></td>
+            <td class="description last"><p>The array of callback functions to add to the queue.</p></td>
         </tr>
 
     
@@ -954,7 +961,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
                 </td>
             
 
-            <td class="description last"><p>Número de intentos de reintentos en caso de error para todos los callbacks (opcional).</p></td>
+            <td class="description last"><p>Number of retry attempts in case of an error for all callbacks (optional).</p></td>
         </tr>
 
     
@@ -999,7 +1006,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-203">line 203</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-201">line 201</a>
 			</li>
 		</ul>
 	</dd>
@@ -1029,7 +1036,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 <dl>
     <dt>
         <div class="param-desc">
-        <p>Si callbacks no es un array de funciones o retries no es un número.</p>
+        <p>If callbacks is not an array of functions or retries is not a number.</p>
         </div>
     </dt>
     <dt>
@@ -1083,14 +1090,14 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
     <h4 class="name" id="getState"><span class="type-signature"></span>getState()</h4>
     
     
-    <p class="summary">Devuelve el estado actual de la cola.</p>
+    <p class="summary">Returns the current state of the queue.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Devuelve el estado actual de la cola.</p>
+        <p>Returns the current state of the queue.</p>
     </div>
     
 
@@ -1137,7 +1144,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-386">line 386</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-377">line 377</a>
 			</li>
 		</ul>
 	</dd>
@@ -1193,16 +1200,16 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
     <h4 class="name" id="start"><span class="type-signature"></span>start()</h4>
     
     
-    <p class="summary">Inicia la ejecución de la cola.</p>
+    <p class="summary">Starts the execution of the queue.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Inicia la ejecución de la cola.</p>
-<p>Si en algún momento la cola es detenida y luego se vuelve a poner en marcha,
-se reanuda la ejecución desde el último callback que estaba pendiente de ejecución.</p>
+        <p>Starts the execution of the queue.</p>
+<p>If the queue is stopped at any point and then restarted,
+the execution resumes from the last pending callback.</p>
     </div>
     
 
@@ -1249,7 +1256,7 @@ se reanuda la ejecución desde el último callback que estaba pendiente de ejecu
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-252">line 252</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-243">line 243</a>
 			</li>
 		</ul>
 	</dd>
@@ -1305,17 +1312,17 @@ se reanuda la ejecución desde el último callback que estaba pendiente de ejecu
     <h4 class="name" id="stop"><span class="type-signature"></span>stop()</h4>
     
     
-    <p class="summary">Detiene la ejecución de la cola, pero no elimina los callbacks pendientes de ejecución.</p>
+    <p class="summary">Stops the execution of the queue, but does not remove pending callbacks.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Detiene la ejecución de la cola, pero no elimina los callbacks pendientes de ejecución.</p>
-<p>Llamar a este método no detendrá la ejecución de los callbacks que ya se están procesando,
-tampoco se eliminan los callbacks pendientes de ejecución, por lo que si se vuelve
-a iniciar la cola, se reanudará desde el último callback que estaba pendiente.</p>
+        <p>Stops the execution of the queue, but does not remove pending callbacks.</p>
+<p>Calling this method will not stop the execution of callbacks that are already being processed,
+nor will it remove pending callbacks from the queue, so if the queue is restarted,
+it will resume from the last pending callback.</p>
     </div>
     
 
@@ -1362,7 +1369,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-344">line 344</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-335">line 335</a>
 			</li>
 		</ul>
 	</dd>
@@ -1446,14 +1453,14 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     <h4 class="name" id="ConcurrentCallbackQueue"><span class="type-signature"></span>new ConcurrentCallbackQueue(options)</h4>
     
     
-    <p class="summary">Crea una nueva cola de callbacks concurrentes.</p>
+    <p class="summary">Creates a new concurrent callback queue.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Crea una nueva cola de callbacks concurrentes.</p>
+        <p>Creates a new concurrent callback queue.</p>
     </div>
     
 
@@ -1505,7 +1512,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 
             
 
-            <td class="description last"><p>Opciones de configuración de la cola.</p></td>
+            <td class="description last"><p>Queue configuration options.</p></td>
         </tr>
 
     
@@ -1604,14 +1611,14 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     <h4 class="name" id="clear"><span class="type-signature"></span>clear()</h4>
     
     
-    <p class="summary">Detiene la ejecución de la cola y elimina todos los callbacks de la misma.</p>
+    <p class="summary">Stops the execution of the queue and removes all callbacks from it.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Detiene la ejecución de la cola y elimina todos los callbacks de la misma.</p>
+        <p>Stops the execution of the queue and removes all callbacks from it.</p>
     </div>
     
 
@@ -1658,7 +1665,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-354">line 354</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-345">line 345</a>
 			</li>
 		</ul>
 	</dd>
@@ -1687,7 +1694,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     
             
 <div class="param-desc">
-    <p>Lista de callbacks pendientes de ejecución</p>
+    <p>List of pending callbacks</p>
 </div>
 
 
@@ -1718,14 +1725,14 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     <h4 class="name" id="dequeue"><span class="type-signature"></span>dequeue()</h4>
     
     
-    <p class="summary">Elimina un callback pendiente de ejecución de la cola, sin detener la ejecución de la misma.</p>
+    <p class="summary">Removes a pending callback from the queue without stopping the queue execution.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Elimina un callback pendiente de ejecución de la cola, sin detener la ejecución de la misma.</p>
+        <p>Removes a pending callback from the queue without stopping the queue execution.</p>
     </div>
     
 
@@ -1772,7 +1779,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-365">line 365</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-356">line 356</a>
 			</li>
 		</ul>
 	</dd>
@@ -1801,7 +1808,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     
             
 <div class="param-desc">
-    <p>Callback eliminado</p>
+    <p>Removed callback</p>
 </div>
 
 
@@ -1832,14 +1839,14 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     <h4 class="name" id="dequeueAll"><span class="type-signature"></span>dequeueAll()</h4>
     
     
-    <p class="summary">Elimina todos los callbacks pendientes de ejecución de la cola, sin detener la ejecución de la misma.</p>
+    <p class="summary">Removes all pending callbacks from the queue without stopping the queue execution.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Elimina todos los callbacks pendientes de ejecución de la cola, sin detener la ejecución de la misma.</p>
+        <p>Removes all pending callbacks from the queue without stopping the queue execution.</p>
     </div>
     
 
@@ -1886,7 +1893,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-375">line 375</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-366">line 366</a>
 			</li>
 		</ul>
 	</dd>
@@ -1915,7 +1922,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     
             
 <div class="param-desc">
-    <p>Lista de callbacks pendientes de ejecución</p>
+    <p>List of pending callbacks</p>
 </div>
 
 
@@ -1946,15 +1953,15 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
     <h4 class="name" id="enqueue"><span class="type-signature"></span>enqueue(callback [, retries])</h4>
     
     
-    <p class="summary">Agrega un callback a la cola, si autoStart está activado se inicia la ejecución de la cola.</p>
+    <p class="summary">Adds a callback to the queue, if autoStart is enabled the queue execution starts.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Agrega un callback a la cola, si autoStart está activado se inicia la ejecución de la cola.
-Puede especificar un número opcional de reintentos en caso de error.</p>
+        <p>Adds a callback to the queue, if autoStart is enabled the queue execution starts.
+You can specify an optional number of retries in case of an error.</p>
     </div>
     
 
@@ -2022,7 +2029,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
                 </td>
             
 
-            <td class="description last"><p>La función de callback a agregar a la cola.</p></td>
+            <td class="description last"><p>The callback function to add to the queue.</p></td>
         </tr>
 
     
@@ -2062,7 +2069,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
                 </td>
             
 
-            <td class="description last"><p>Número de intentos de reintentos en caso de error (opcional).</p></td>
+            <td class="description last"><p>Number of retry attempts in case of an error (optional).</p></td>
         </tr>
 
     
@@ -2107,7 +2114,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-161">line 161</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-162">line 162</a>
 			</li>
 		</ul>
 	</dd>
@@ -2137,7 +2144,7 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
 <dl>
     <dt>
         <div class="param-desc">
-        <p>Si el callback no es una función o retries no es un número.</p>
+        <p>If the callback is not a function or retries is not a number.</p>
         </div>
     </dt>
     <dt>
@@ -2191,15 +2198,15 @@ Puede especificar un número opcional de reintentos en caso de error.</p>
     <h4 class="name" id="enqueueAll"><span class="type-signature"></span>enqueueAll(callbacks [, retries])</h4>
     
     
-    <p class="summary">Agrega varios callbacks a la cola, si autoStart está activado se inicia la ejecución de la cola.</p>
+    <p class="summary">Adds multiple callbacks to the queue, if autoStart is enabled the queue execution starts.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Agrega varios callbacks a la cola, si autoStart está activado se inicia la ejecución de la cola.
-Puede especificar un número opcional de intentos de reintentos en caso de error.</p>
+        <p>Adds multiple callbacks to the queue, if autoStart is enabled the queue execution starts.
+You can specify an optional number of retry attempts in case of an error.</p>
     </div>
     
 
@@ -2267,7 +2274,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
                 </td>
             
 
-            <td class="description last"><p>El array de funciones de callback a agregar a la cola.</p></td>
+            <td class="description last"><p>The array of callback functions to add to the queue.</p></td>
         </tr>
 
     
@@ -2307,7 +2314,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
                 </td>
             
 
-            <td class="description last"><p>Número de intentos de reintentos en caso de error para todos los callbacks (opcional).</p></td>
+            <td class="description last"><p>Number of retry attempts in case of an error for all callbacks (optional).</p></td>
         </tr>
 
     
@@ -2352,7 +2359,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-203">line 203</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-201">line 201</a>
 			</li>
 		</ul>
 	</dd>
@@ -2382,7 +2389,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 <dl>
     <dt>
         <div class="param-desc">
-        <p>Si callbacks no es un array de funciones o retries no es un número.</p>
+        <p>If callbacks is not an array of functions or retries is not a number.</p>
         </div>
     </dt>
     <dt>
@@ -2436,14 +2443,14 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
     <h4 class="name" id="getState"><span class="type-signature"></span>getState()</h4>
     
     
-    <p class="summary">Devuelve el estado actual de la cola.</p>
+    <p class="summary">Returns the current state of the queue.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Devuelve el estado actual de la cola.</p>
+        <p>Returns the current state of the queue.</p>
     </div>
     
 
@@ -2490,7 +2497,7 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-386">line 386</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-377">line 377</a>
 			</li>
 		</ul>
 	</dd>
@@ -2546,16 +2553,16 @@ Puede especificar un número opcional de intentos de reintentos en caso de error
     <h4 class="name" id="start"><span class="type-signature"></span>start()</h4>
     
     
-    <p class="summary">Inicia la ejecución de la cola.</p>
+    <p class="summary">Starts the execution of the queue.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Inicia la ejecución de la cola.</p>
-<p>Si en algún momento la cola es detenida y luego se vuelve a poner en marcha,
-se reanuda la ejecución desde el último callback que estaba pendiente de ejecución.</p>
+        <p>Starts the execution of the queue.</p>
+<p>If the queue is stopped at any point and then restarted,
+the execution resumes from the last pending callback.</p>
     </div>
     
 
@@ -2602,7 +2609,7 @@ se reanuda la ejecución desde el último callback que estaba pendiente de ejecu
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-252">line 252</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-243">line 243</a>
 			</li>
 		</ul>
 	</dd>
@@ -2658,17 +2665,17 @@ se reanuda la ejecución desde el último callback que estaba pendiente de ejecu
     <h4 class="name" id="stop"><span class="type-signature"></span>stop()</h4>
     
     
-    <p class="summary">Detiene la ejecución de la cola, pero no elimina los callbacks pendientes de ejecución.</p>
+    <p class="summary">Stops the execution of the queue, but does not remove pending callbacks.</p>
     
 </dt>
 <dd>
 
     
     <div class="description">
-        <p>Detiene la ejecución de la cola, pero no elimina los callbacks pendientes de ejecución.</p>
-<p>Llamar a este método no detendrá la ejecución de los callbacks que ya se están procesando,
-tampoco se eliminan los callbacks pendientes de ejecución, por lo que si se vuelve
-a iniciar la cola, se reanudará desde el último callback que estaba pendiente.</p>
+        <p>Stops the execution of the queue, but does not remove pending callbacks.</p>
+<p>Calling this method will not stop the execution of callbacks that are already being processed,
+nor will it remove pending callbacks from the queue, so if the queue is restarted,
+it will resume from the last pending callback.</p>
     </div>
     
 
@@ -2715,7 +2722,7 @@ a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
 		<ul class="dummy">
 			<li>
 				<a href="ConcurrentCallbackQueue.js.html">ConcurrentCallbackQueue.js</a>,
-				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-344">line 344</a>
+				 <a href="ConcurrentCallbackQueue.js.html#sunlight-1-line-335">line 335</a>
 			</li>
 		</ul>
 	</dd>
