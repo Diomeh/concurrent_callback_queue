@@ -1,0 +1,46 @@
+{
+    "plugins": [
+        "plugins/markdown",
+        "plugins/summarize"
+    ],
+    "recurseDepth": 10,
+    "source": {
+        "include": [
+            "./src"
+        ],
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": [
+            "jsdoc",
+            "closure"
+        ]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "systemName": "Concurrent Callback Queue",
+        "copyright": "David Urbina 2024",
+        "includeDate": true,
+        "navType": "vertical",
+        "theme": "superhero",
+        "linenums": true,
+        "collapseSymbols": true,
+        "inverseNav": false,
+        "outputSourceFiles": true,
+        "dateFormat": "YYYY-MM-DD",
+        "syntaxTheme": "dark",
+        "search": true
+    },
+    "opts": {
+        "template": "./node_modules/ink-docstrap/template",
+        "destination": "./docs/",
+        "recurse": true,
+        "readme": "./README.md",
+        "tutorials": "./tutorials",
+        "package": "./package.json"
+    }
+}
