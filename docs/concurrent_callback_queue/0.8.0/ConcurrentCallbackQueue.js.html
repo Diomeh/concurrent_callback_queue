@@ -87,21 +87,20 @@
             class="sunlight-highlight-javascript linenums">// noinspection JSUnusedGlobalSymbols
 
 /**
- * Opciones de configuración de la cola
+ * Queue configuration options
  *
  * @typedef {Object} QueueOptions
- * @property {boolean} autoStart - Indica si la cola debe iniciar su ejecución automáticamente al agregar un callback
- * @property {number} maxConcurrent - Cantidad máxima de callbacks que se pueden ejecutar en paralelo
- * @property {Function} onCallbackError - Callback que se ejecuta cuando ocurre un error al ejecutar un callback, recibe como
- * parámetro el error que se produjo
- * @property {Function} onCallbackSuccess - Callback que se ejecuta después de que un callback se ejecuta correctamente
- * @property {Function} onQueueIdle - Callback que se ejecuta cuando la cola pasa a estado IDLE
- * @property {Function} onQueueBusy - Callback que se ejecuta cuando la cola pasa a estado BUSY
- * @property {Function} onQueueStop - Callback que se ejecuta cuando la cola se detiene
+ * @property {boolean} autoStart - Indicates if the queue should start execution automatically when a callback is added
+ * @property {number} maxConcurrent - Maximum number of callbacks that can be executed in parallel
+ * @property {Function} onCallbackError - Callback that is executed when an error occurs while executing a callback, receives the error as a parameter
+ * @property {Function} onCallbackSuccess - Callback that is executed after a callback successfully executes
+ * @property {Function} onQueueIdle - Callback that is executed when the queue goes to IDLE state
+ * @property {Function} onQueueBusy - Callback that is executed when the queue goes to BUSY state
+ * @property {Function} onQueueStop - Callback that is executed when the queue stops
  */
 
 /**
- * Opciones por defecto de la cola
+ * Default queue options
  *
  * @type {QueueOptions}
  */
@@ -116,7 +115,7 @@ const defaultQueueOptions = {
 };
 
 /**
- * Enumera los estados en que se puede encontrar la cola
+ * Enumerates the states the queue can be in
  *
  * @type {{IDLE: string, BUSY: string, STOPPED: string}}
  */
@@ -127,7 +126,7 @@ const QueueState = {
 };
 
 /**
- * Cola de callbacks que se ejecutan de forma concurrente
+ * Concurrent callback queue
  *
  * @class ConcurrentCallbackQueue
  * @example
@@ -148,13 +147,14 @@ const QueueState = {
  *
  * queue.start();
  *
- * @author David Urbina
- * @version 1.0.0
+ * @author David Urbina (davidurbina.dev@gmail.com)
+ * @version 0.8.0
  * @since 2023-03-23
+ * @tutorial concurrent-callback-queue
  */
 class ConcurrentCallbackQueue {
     /**
-     * Cola de callbacks pendientes a ejecutar de forma concurrente
+     * List of pending callbacks to execute concurrently
      *
      * @type {Array&lt;Function>}
      * @private
@@ -162,7 +162,7 @@ class ConcurrentCallbackQueue {
     #pending;
 
     /**
-     * Callbacks en ejecución
+     * Callbacks currently running
      *
      * @type {Map&lt;number, Function>}
      * @private
@@ -170,7 +170,7 @@ class ConcurrentCallbackQueue {
     #running;
 
     /**
-     * Estado en que se encuentra la cola
+     * Current state of the queue
      *
      * @type {string}
      * @private
@@ -178,7 +178,7 @@ class ConcurrentCallbackQueue {
     #state;
 
     /**
-     * Cantidad de callbacks que se están ejecutando en este momento
+     * Number of callbacks currently running
      *
      * @type {number}
      * @private
@@ -186,7 +186,7 @@ class ConcurrentCallbackQueue {
     #concurrent;
 
     /**
-     * Opciones de configuración de la cola
+     * Queue configuration options
      *
      * @type {QueueOptions}
      * @private
@@ -194,9 +194,9 @@ class ConcurrentCallbackQueue {
     #options;
 
     /**
-     * Crea una nueva cola de callbacks concurrentes.
+     * Creates a new concurrent callback queue.
      *
-     * @param {QueueOptions} options - Opciones de configuración de la cola.
+     * @param {QueueOptions} options - Queue configuration options.
      */
     constructor(options = defaultQueueOptions) {
         this.#pending = [];
@@ -207,17 +207,18 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Función vacía que se usa como callback por defecto.
+     * Empty function used as a default callback.
      *
      * @returns {void}
      * @private
      */
-    #noop = () => {};
+    #noop = () => {
+    };
 
     /**
-     * Inicializa las opciones de configuración de la cola, se mezclan las opciones por defecto con las opciones recibidas.
+     * Initializes the queue configuration options, merging the default options with the received options.
      *
-     * @param {QueueOptions} options - Opciones de configuración de la cola.
+     * @param {QueueOptions} options - Queue configuration options.
      */
     #initOptions(options) {
         this.#options = {
@@ -225,7 +226,7 @@ class ConcurrentCallbackQueue {
             ...options,
         };
 
-        // seteamos un noop a los callbacks que no se hayan especificado para evitar verificar si son funciones en cada llamada
+        // Set a noop for unspecified callbacks to avoid checking if they are functions in each call
         this.#options.onCallbackError = typeof options.onCallbackError === 'function' ? options.onCallbackError : this.#noop;
         this.#options.onCallbackSuccess = typeof options.onCallbackSuccess === 'function' ? options.onCallbackSuccess : this.#noop;
         this.#options.onQueueIdle = typeof options.onQueueIdle === 'function' ? options.onQueueIdle : this.#noop;
@@ -234,26 +235,23 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Agrega un callback a la cola, si autoStart está activado se inicia la ejecución de la cola.
-     * Puede especificar un número opcional de reintentos en caso de error.
+     * Adds a callback to the queue, if autoStart is enabled the queue execution starts.
+     * You can specify an optional number of retries in case of an error.
      *
-     * @param {Function} callback - La función de callback a agregar a la cola.
-     * @param {number} [retries=0] - Número de intentos de reintentos en caso de error (opcional).
+     * @param {Function} callback - The callback function to add to the queue.
+     * @param {number} [retries=0] - Number of retry attempts in case of an error (optional).
      * @returns {void}
-     * @throws {Error} Si el callback no es una función o retries no es un número.
+     * @throws {Error} If the callback is not a function or retries is not a number.
      *
      * @public
      */
     enqueue(callback, retries = 0) {
         if (typeof callback !== 'function') {
-            throw new Error('El callback debe ser una función')
+            throw new Error('The "callback" parameter must be a function or a promise');
         }
 
-        if (typeof retries !== 'number') {
-            throw new Error('El parámetro retries debe ser un número');
-        }
-        if (retries &lt; 0) {
-            throw new Error('El parámetro retries debe ser un número positivo');
+        if (typeof retries !== 'number' || retries &lt; 0) {
+            throw new Error('The "retries" parameter must be a positive number');
         }
 
         const retryCallback = async (currentRetry) => {
@@ -261,7 +259,7 @@ class ConcurrentCallbackQueue {
                 await callback();
             } catch (error) {
                 if (currentRetry &lt; retries) {
-                    console.warn(`Error ejecutando callback. Reintentando (${currentRetry + 1}/${retries})...`);
+                    console.warn(`Error executing callback. Retrying (${currentRetry + 1}/${retries})...`);
                     await retryCallback(currentRetry + 1);
                 } else {
                     this.#handleError(error);
@@ -276,30 +274,23 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Agrega varios callbacks a la cola, si autoStart está activado se inicia la ejecución de la cola.
-     * Puede especificar un número opcional de intentos de reintentos en caso de error.
+     * Adds multiple callbacks to the queue, if autoStart is enabled the queue execution starts.
+     * You can specify an optional number of retry attempts in case of an error.
      *
-     * @param {Array&lt;Function>} callbacks - El array de funciones de callback a agregar a la cola.
-     * @param {number} [retries=0] - Número de intentos de reintentos en caso de error para todos los callbacks (opcional).
+     * @param {Array&lt;Function>} callbacks - The array of callback functions to add to the queue.
+     * @param {number} [retries=0] - Number of retry attempts in case of an error for all callbacks (optional).
      * @returns {void}
-     * @throws {Error} Si callbacks no es un array de funciones o retries no es un número.
+     * @throws {Error} If callbacks is not an array of functions or retries is not a number.
      *
      * @public
      */
     enqueueAll(callbacks, retries = 0) {
-        if (!Array.isArray(callbacks)) {
-            throw new Error('El parámetro debe ser un array de funciones');
+        if (!Array.isArray(callbacks) || !callbacks.every(callback => typeof callback === 'function')) {
+            throw new Error('The "callbacks" parameter must be an array of functions');
         }
 
-        if (!callbacks.every(callback => typeof callback === 'function')) {
-            throw new Error('El parámetro debe ser un array de funciones');
-        }
-
-        if (typeof retries !== 'number') {
-            throw new Error('El parámetro retries debe ser un número');
-        }
-        if (retries &lt; 0) {
-            throw new Error('El parámetro retries debe ser un número positivo');
+        if (typeof retries !== 'number' || retries &lt; 0) {
+            throw new Error('The "retries" parameter must be a positive number');
         }
 
         const retryCallbacks = callbacks.map(callback => {
@@ -308,7 +299,7 @@ class ConcurrentCallbackQueue {
                     await callback();
                 } catch (error) {
                     if (currentRetry &lt; retries) {
-                        console.warn(`Error ejecutando callback. Reintentando (${currentRetry + 1}/${retries})...`);
+                        console.warn(`Error executing callback. Retrying (${currentRetry + 1}/${retries})...`);
                         await retryCallback(currentRetry + 1);
                     } else {
                         this.#handleError(error);
@@ -327,10 +318,10 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Inicia la ejecución de la cola.
+     * Starts the execution of the queue.
      *
-     * Si en algún momento la cola es detenida y luego se vuelve a poner en marcha,
-     * se reanuda la ejecución desde el último callback que estaba pendiente de ejecución.
+     * If the queue is stopped at any point and then restarted,
+     * the execution resumes from the last pending callback.
      *
      * @returns {void}
      * @public
@@ -345,7 +336,7 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Ejecuta de forma concurrente los callbacks de la cola.
+     * Executes the callbacks in the queue concurrently.
      *
      * @returns {void}
      * @private
@@ -379,9 +370,9 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Maneja errores que ocurren durante la ejecución de un callback.
+     * Handles errors that occur during the execution of a callback.
      *
-     * @param {Error} error - El objeto de error.
+     * @param {Error} error - The error object.
      * @returns {void}
      * @private
      */
@@ -390,9 +381,9 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Determina si se debe procesar la cola
+     * Determines if the queue should be processed
      *
-     * @returns {boolean} Verdadero si se debe procesar la cola, falso en caso contrario
+     * @returns {boolean} True if the queue should be processed, false otherwise
      * @private
      */
     #shouldProcess() {
@@ -402,7 +393,7 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Revisa el estado de la cola y la procesa si es necesario.
+     * Checks the state of the queue and processes it if necessary.
      *
      * @returns {void}
      * @private
@@ -418,11 +409,11 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Detiene la ejecución de la cola, pero no elimina los callbacks pendientes de ejecución.
+     * Stops the execution of the queue, but does not remove pending callbacks.
      *
-     * Llamar a este método no detendrá la ejecución de los callbacks que ya se están procesando,
-     * tampoco se eliminan los callbacks pendientes de ejecución, por lo que si se vuelve
-     * a iniciar la cola, se reanudará desde el último callback que estaba pendiente.
+     * Calling this method will not stop the execution of callbacks that are already being processed,
+     * nor will it remove pending callbacks from the queue, so if the queue is restarted,
+     * it will resume from the last pending callback.
      *
      * @returns {void}
      * @public
@@ -432,9 +423,9 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Detiene la ejecución de la cola y elimina todos los callbacks de la misma.
+     * Stops the execution of the queue and removes all callbacks from it.
      *
-     * @returns {Array&lt;Function>} Lista de callbacks pendientes de ejecución
+     * @returns {Array&lt;Function>} List of pending callbacks
      * @public
      */
     clear() {
@@ -443,9 +434,9 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Elimina un callback pendiente de ejecución de la cola, sin detener la ejecución de la misma.
+     * Removes a pending callback from the queue without stopping the queue execution.
      *
-     * @return {Function} Callback eliminado
+     * @return {Function} Removed callback
      * @public
      */
     dequeue() {
@@ -453,9 +444,9 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Elimina todos los callbacks pendientes de ejecución de la cola, sin detener la ejecución de la misma.
+     * Removes all pending callbacks from the queue without stopping the queue execution.
      *
-     * @returns {Array&lt;Function>} Lista de callbacks pendientes de ejecución
+     * @returns {Array&lt;Function>} List of pending callbacks
      * @public
      */
     dequeueAll() {
@@ -465,7 +456,7 @@ class ConcurrentCallbackQueue {
     }
 
     /**
-     * Devuelve el estado actual de la cola.
+     * Returns the current state of the queue.
      *
      * @returns {string}
      */
