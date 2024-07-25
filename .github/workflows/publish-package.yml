@@ -1,0 +1,63 @@
+name: Publish package
+
+on:
+  release:
+    types: [ created ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i --package-lock-only
+      - run: npm ci
+      - run: npm test
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+          scope: "@diomeh"
+          always-auth: true
+      - run: npm i --package-lock-only
+      - run: npm ci
+      - run: npm publish --access public --provenance true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://npm.pkg.github.com/
+          scope: "@diomeh"
+          always-auth: true
+      - run: npm i --package-lock-only
+      - run: npm ci
+      # Force the registry to be the GitHub Package Registry
+      - run: echo "@diomeh:registry=https://npm.pkg.github.com/diomeh" >> .npmrc
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GPR_TOKEN }}
