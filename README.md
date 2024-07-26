@@ -2,6 +2,18 @@
 
 This JavaScript module provides a concurrent callback queue that allows you to manage and execute multiple callbacks concurrently with various configuration options. The queue ensures controlled execution of the callbacks with options for handling errors, managing concurrency levels, and defining custom behavior on different queue states.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Example](#example)
+  - [Configuration Options](#configuration-options)
+  - [API](#api)
+  - [Queue States](#queue-states)
+- [License](#license)
+- [Author](#author)
+
 ## Features
 - Concurrent Execution: Execute multiple callbacks concurrently with a configurable limit on the number of concurrent executions.
 - Automatic Start: Option to automatically start the queue execution upon adding a callback.
@@ -27,6 +39,8 @@ import ConcurrentCallbackQueue from './path/to/ConcurrentCallbackQueue.js';
 
 ### Example
 
+Detailed examples can be found in the [tutorial](tutorials/concurrent-callback-queue.md) page.
+
 Here's an example of how to use the `ConcurrentCallbackQueue`:
 
 ```javascript
@@ -47,8 +61,6 @@ for (let i = 0; i < 10; i++) {
 
 queue.start();
 ```
-
-More detailed examples can be found in the [tutorial](tutorials/concurrent-callback-queue.md) page. 
 
 ### Configuration Options
 
