@@ -85,6 +85,7 @@ const QueueState = {
  * @since 2023-03-23
  * @tutorial concurrent-callback-queue
  */
+// eslint-disable-next-line no-unused-vars
 class ConcurrentCallbackQueue {
     /**
      * List of pending callbacks to execute concurrently.
@@ -222,7 +223,6 @@ class ConcurrentCallbackQueue {
                 await callback();
             } catch (error) {
                 if (currentRetry < retries) {
-                    console.warn(`Error executing callback. Retrying (${currentRetry + 1}/${retries})...`);
                     await retryCallback(currentRetry + 1);
                 } else {
                     this.#handleError(error);
@@ -262,7 +262,6 @@ class ConcurrentCallbackQueue {
                     await callback();
                 } catch (error) {
                     if (currentRetry < retries) {
-                        console.warn(`Error executing callback. Retrying (${currentRetry + 1}/${retries})...`);
                         await retryCallback(currentRetry + 1);
                     } else {
                         this.#handleError(error);
