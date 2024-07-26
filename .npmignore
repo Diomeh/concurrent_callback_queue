@@ -3,6 +3,8 @@
 .vscode/
 .idea/
 docs/
+coverage/
+tmp/
 .envrc
 jsdoc.config.json
 shell.nix
