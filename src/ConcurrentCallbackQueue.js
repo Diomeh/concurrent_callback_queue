@@ -85,7 +85,6 @@ const QueueState = {
  * @since 2023-03-23
  * @tutorial concurrent-callback-queue
  */
-// eslint-disable-next-line no-unused-vars
 class ConcurrentCallbackQueue {
     /**
      * List of pending callbacks to execute concurrently.
@@ -427,3 +426,9 @@ class ConcurrentCallbackQueue {
         return this.#state;
     }
 }
+
+module.exports = {
+    ConcurrentCallbackQueue,
+    QueueState,
+    defaultQueueOptions,
+};

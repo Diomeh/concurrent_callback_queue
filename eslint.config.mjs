@@ -17,10 +17,8 @@ export default [
 		],
 		languageOptions: {
 			ecmaVersion: "latest",
-			sourceType: "module",
+			sourceType: "commonjs",
 			globals: {
-				...globals.browser,
-				...globals.node,
 			},
 		},
 		plugins: {
@@ -36,6 +34,8 @@ export default [
 			"max-lines": "off",
 			"no-plusplus": "off",
 			"class-methods-use-this": "off",
+			"no-inline-comments": "off",
+			"max-lines-per-function": "off",
 			"no-magic-numbers": ["error", {
 				ignore: [0, 1],
 				ignoreArrayIndexes: true,
@@ -59,6 +59,8 @@ export default [
 			ecmaVersion: "latest",
 			sourceType: "script",
 			globals: {
+				...globals.browser,
+				...globals.node,
 				...globals.jest,
 			},
 		},
@@ -74,6 +76,8 @@ export default [
 			"class-methods-use-this": "off",
 			"no-magic-numbers": "off",
 			"strict": "off",
+			"no-inline-comments": "off",
+			"max-lines-per-function": "off",
 		},
 	},
 ];
