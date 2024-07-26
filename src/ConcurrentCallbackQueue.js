@@ -1,20 +1,35 @@
 // noinspection JSUnusedGlobalSymbols
 
 /**
- * Queue configuration options
+ * Queue configuration options.
+ *
+ * Defines all the possible options that can be set when creating a new queue.
  *
  * @typedef {Object} QueueOptions
- * @property {boolean} autoStart - Indicates if the queue should start execution automatically when a callback is added
- * @property {number} maxConcurrent - Maximum number of callbacks that can be executed in parallel
- * @property {Function} onCallbackError - Callback that is executed when an error occurs while executing a callback, receives the error as a parameter
- * @property {Function} onCallbackSuccess - Callback that is executed after a callback successfully executes
- * @property {Function} onQueueIdle - Callback that is executed when the queue goes to IDLE state
- * @property {Function} onQueueBusy - Callback that is executed when the queue goes to BUSY state
- * @property {Function} onQueueStop - Callback that is executed when the queue stops
+ * @property {boolean} autoStart - Indicates if the queue should start execution automatically when a callback is added.
+ * @property {number} maxConcurrent - Maximum number of callbacks that can be executed in parallel.
+ * @property {Function} onCallbackError - Callback that is executed when an error occurs while executing a callback, receives the error as a parameter.
+ * @property {Function} onCallbackSuccess - Callback that is executed after a callback successfully executes.
+ * @property {Function} onQueueIdle - Callback that is executed when the queue goes to IDLE state.
+ * @property {Function} onQueueBusy - Callback that is executed when the queue goes to BUSY state.
+ * @property {Function} onQueueStop - Callback that is executed when the queue stops.
+ */
+
+/**
+ * Queue states definition.
+ *
+ * Defines all the possible states the queue can be in.
+ *
+ * @typedef {Object} QueueStates
+ * @property {string} IDLE - The queue is idle.
+ * @property {string} BUSY - The queue is processing.
+ * @property {string} STOPPED - The queue has stopped.
  */
 
 /**
  * Default queue options
+ *
+ * The default options that are used when creating a new queue.
  *
  * @type {QueueOptions}
  */
@@ -29,9 +44,11 @@ const defaultQueueOptions = {
 };
 
 /**
- * Enumerates the states the queue can be in
+ * Queue states
  *
- * @type {{IDLE: string, BUSY: string, STOPPED: string}}
+ * The possible states that the queue can be in.
+ *
+ * @type {QueueStates}
  */
 const QueueState = {
     IDLE: 'IDLE',
@@ -40,9 +57,11 @@ const QueueState = {
 };
 
 /**
- * Concurrent callback queue
+ * A class to manage the execution of callbacks concurrently.
  *
- * @class ConcurrentCallbackQueue
+ * This class provides functionality to add, remove, and execute callback functions with a specified concurrency level.
+ * It supports automatic retry on error, queue state management, and customizable callback events.
+ *
  * @example
  * const queue = new ConcurrentCallbackQueue({
  *     autoStart: false,
@@ -68,7 +87,9 @@ const QueueState = {
  */
 class ConcurrentCallbackQueue {
     /**
-     * List of pending callbacks to execute concurrently
+     * List of pending callbacks to execute concurrently.
+     *
+     * This property holds an array of functions representing the callbacks that are waiting to be executed.
      *
      * @type {Array<Function>}
      * @private
@@ -78,23 +99,33 @@ class ConcurrentCallbackQueue {
     /**
      * Callbacks currently running
      *
+     * Each callback is stored with a unique index to identify it
+     *
      * @type {Map<number, Function>}
      * @private
      */
     #running;
 
     /**
-     * Current state of the queue
+     * Represents the current state of the queue.
+     *
+     * This property holds the state of the queue as a string, indicating its current status.
+     * The possible states are IDLE, BUSY, and STOPPED.
      *
      * @type {string}
+     * @see QueueState
+     * @see QueueStates
      * @private
      */
     #state;
 
     /**
-     * Number of callbacks currently running
+     * Number of callbacks currently running.
+     *
+     * This property keeps track of the count of callbacks that are currently being executed.
      *
      * @type {number}
+     * @see ConcurrentCallbackQueue#maxConcurrent
      * @private
      */
     #concurrent;
@@ -111,6 +142,8 @@ class ConcurrentCallbackQueue {
      * Creates a new concurrent callback queue.
      *
      * @param {QueueOptions} options - Queue configuration options.
+     * @class
+     * @public
      */
     constructor(options = defaultQueueOptions) {
         this.#pending = [];
@@ -118,6 +151,19 @@ class ConcurrentCallbackQueue {
         this.#state = QueueState.IDLE;
         this.#concurrent = 0;
         this.#initOptions(options);
+    }
+
+    /**
+     * Creates a new concurrent callback queue.
+     *
+     * @param {QueueOptions} options - Queue configuration options.
+     * @returns {ConcurrentCallbackQueue} The new queue instance.
+     * @class
+     * @static
+     * @public
+     */
+    static create(options = defaultQueueOptions) {
+        return new ConcurrentCallbackQueue(options);
     }
 
     /**
@@ -130,9 +176,12 @@ class ConcurrentCallbackQueue {
     };
 
     /**
-     * Initializes the queue configuration options, merging the default options with the received options.
+     * Initializes the queue configuration options, merging the defaults with the provided options.
      *
      * @param {QueueOptions} options - Queue configuration options.
+     * @returns {void}
+     *
+     * @private
      */
     #initOptions(options) {
         this.#options = {
@@ -373,6 +422,7 @@ class ConcurrentCallbackQueue {
      * Returns the current state of the queue.
      *
      * @returns {string}
+     * @public
      */
     getState() {
         return this.#state;
