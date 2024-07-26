@@ -1,5 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
+"use strict";
+
 /**
  * Queue configuration options.
  *
@@ -26,6 +28,15 @@
  * @property {string} STOPPED - The queue has stopped.
  */
 
+
+/**
+ * Empty function used as a default callback.
+ *
+ * @returns {void}
+ */
+const noop = () => {
+};
+
 /**
  * Default queue options
  *
@@ -34,13 +45,13 @@
  * @type {QueueOptions}
  */
 const defaultQueueOptions = {
-    autoStart: true,
-    maxConcurrent: 10,
-    onCallbackError: null,
-    onCallbackSuccess: null,
-    onQueueIdle: null,
-    onQueueBusy: null,
-    onQueueStop: null,
+	autoStart: true,
+	maxConcurrent: 10,
+	onCallbackError: noop,
+	onCallbackSuccess: noop,
+	onQueueIdle: noop,
+	onQueueBusy: noop,
+	onQueueStop: noop,
 };
 
 /**
@@ -140,71 +151,65 @@ class ConcurrentCallbackQueue {
 
     /**
      * Creates a new concurrent callback queue.
-     *
-     * @param {QueueOptions} options - Queue configuration options.
-     * @class
-     * @public
-     */
-    constructor(options = defaultQueueOptions) {
-        this.#pending = [];
-        this.#running = new Map();
-        this.#state = QueueState.IDLE;
-        this.#concurrent = 0;
-        this.#initOptions(options);
-    }
+	 *
+	 * @param {QueueOptions} options - Queue configuration options.
+	 * @class
+	 * @see QueueOptions
+	 * @public
+	 */
+	constructor(options = defaultQueueOptions) {
+		this.#pending = [];
+		this.#running = new Map();
+		this.#state = QueueState.IDLE;
+		this.#concurrent = 0;
+		this.#initOptions(options);
+	}
 
-    /**
-     * Creates a new concurrent callback queue.
-     *
-     * @param {QueueOptions} options - Queue configuration options.
-     * @returns {ConcurrentCallbackQueue} The new queue instance.
-     * @class
-     * @static
-     * @public
-     */
-    static create(options = defaultQueueOptions) {
-        return new ConcurrentCallbackQueue(options);
-    }
+	/**
+	 * Creates a new concurrent callback queue.
+	 *
+	 * @param {QueueOptions} options - Queue configuration options.
+	 * @returns {ConcurrentCallbackQueue} The new queue instance.
+	 * @class
+	 * @see QueueOptions
+	 * @static
+	 * @public
+	 */
+	static create(options = defaultQueueOptions) {
+		return new ConcurrentCallbackQueue(options);
+	}
 
-    /**
-     * Empty function used as a default callback.
-     *
-     * @returns {void}
-     * @private
-     */
-    #noop = () => {
-    };
+	/**
+	 * Initializes the queue configuration options, merging the defaults with the provided options.
+	 *
+	 * @param {QueueOptions|Object} options - Queue configuration options.
+	 * @returns {void}
+	 *
+	 * @private
+	 */
+	#initOptions(options) {
+		this.#options = {
+			...defaultQueueOptions,
+			...options || {},
+		};
 
-    /**
-     * Initializes the queue configuration options, merging the defaults with the provided options.
-     *
-     * @param {QueueOptions} options - Queue configuration options.
-     * @returns {void}
-     *
-     * @private
-     */
-    #initOptions(options) {
-        this.#options = {
-            ...defaultQueueOptions,
-            ...options,
-        };
+		// Set a noop for unspecified callbacks to avoid checking if they are functions in each call
+		// We do this as a means of ensuring that the callbacks are always functions
+		this.#options.onCallbackError = typeof options.onCallbackError === 'function' ? options.onCallbackError : noop;
+		this.#options.onCallbackSuccess = typeof options.onCallbackSuccess === 'function' ? options.onCallbackSuccess : noop;
+		this.#options.onQueueIdle = typeof options.onQueueIdle === 'function' ? options.onQueueIdle : noop;
+		this.#options.onQueueBusy = typeof options.onQueueBusy === 'function' ? options.onQueueBusy : noop;
+		this.#options.onQueueStop = typeof options.onQueueStop === 'function' ? options.onQueueStop : noop;
+	}
 
-        // Set a noop for unspecified callbacks to avoid checking if they are functions in each call
-        this.#options.onCallbackError = typeof options.onCallbackError === 'function' ? options.onCallbackError : this.#noop;
-        this.#options.onCallbackSuccess = typeof options.onCallbackSuccess === 'function' ? options.onCallbackSuccess : this.#noop;
-        this.#options.onQueueIdle = typeof options.onQueueIdle === 'function' ? options.onQueueIdle : this.#noop;
-        this.#options.onQueueBusy = typeof options.onQueueBusy === 'function' ? options.onQueueBusy : this.#noop;
-        this.#options.onQueueStop = typeof options.onQueueStop === 'function' ? options.onQueueStop : this.#noop;
-    }
-
-    /**
-     * Adds a callback to the queue, if autoStart is enabled the queue execution starts.
-     * You can specify an optional number of retries in case of an error.
-     *
-     * @param {Function} callback - The callback function to add to the queue.
-     * @param {number} [retries=0] - Number of retry attempts in case of an error (optional).
-     * @returns {void}
-     * @throws {Error} If the callback is not a function or retries is not a number.
+	/**
+	 * Adds a callback to the queue, if autoStart is enabled the queue execution starts.
+	 * You can specify an optional number of retries in case of an error.
+	 *
+	 * @param {Function} callback - The callback function to add to the queue.
+	 * @param {number} [retries=0] - Number of retry attempts in case of an error (optional).
+	 * @returns {void}
+	 * @throws {Error} If the callback is not a function or retries is not a number.
      *
      * @public
      */
