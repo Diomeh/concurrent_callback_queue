@@ -2,9 +2,14 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # Runs on pushes
   push:
-    branches: ["master"]
+    # Targeting the default branch
+    branches:
+      - "master"
+    # Targeting the docs folder
+    paths:
+      - "docs/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

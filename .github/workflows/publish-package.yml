@@ -1,13 +1,13 @@
-name: Publish package
+name: Publish package to npm and GitHub Package Registry
 
 on:
+  # Publish on release creation
   release:
-    types: [ created ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    types:
+      - created
 
 jobs:
+  # Build and test the package
   build:
     runs-on: ubuntu-latest
     steps:
@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # As we use pnpm, we need to create a npm package-lock.json file
       - run: npm i --package-lock-only
       - run: npm ci
       - run: npm test
@@ -57,6 +58,7 @@ jobs:
       - run: npm i --package-lock-only
       - run: npm ci
       # Force the registry to be the GitHub Package Registry
+      # Without this, npm would try to publish to the npm registry
       - run: echo "@diomeh:registry=https://npm.pkg.github.com/diomeh" >> .npmrc
       - run: npm publish --access public
         env:
