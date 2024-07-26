@@ -81,7 +81,7 @@ const QueueState = {
  * queue.start();
  *
  * @author David Urbina (davidurbina.dev@gmail.com)
- * @version 0.8.0
+ * @version 0.8.7
  * @since 2023-03-23
  * @tutorial concurrent-callback-queue
  */
