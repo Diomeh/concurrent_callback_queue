@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy documentation to Github Pages
 
 on:
   # Runs on pushes
@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
+  # Single job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -36,12 +36,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Build Docs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run docs
+      # Needed for JSDoc to generate the correct links
+      - name: Get current package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs/concurrent_callback_queue/0.8.0/'
+          # We need to use the current version of the package to avoid caching issues
+          path: './docs/@diomeh/concurrent_callback_queue/${{ steps.package-version.outputs.current-version}}/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

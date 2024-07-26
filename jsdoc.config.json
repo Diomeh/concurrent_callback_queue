@@ -3,6 +3,9 @@
         "plugins/markdown",
         "plugins/summarize"
     ],
+    "markdown": {
+        "idInHeadings": true
+    },
     "recurseDepth": 10,
     "source": {
         "include": [

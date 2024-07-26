@@ -1,0 +1,8 @@
+.direnv/
+.github/
+.vscode/
+.idea/
+docs/
+.envrc
+jsdoc.config.json
+shell.nix
