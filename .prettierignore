@@ -1,0 +1,11 @@
+.direnv
+.github
+.vscode
+.idea
+build
+docs
+coverage
+tests
+tmp
+eslint.config.mjs
+jest.config.js

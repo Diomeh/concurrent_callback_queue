@@ -99,7 +99,8 @@ describe('ConcurrentCallbackQueue', () => {
 		}
 
 		try {
-			queue.enqueue(() => {}, "foo");
+			queue.enqueue(() => {
+			}, "foo");
 		} catch (e) {
 			expect(e.message).toBe('The "retries" parameter must be a positive number');
 		}
@@ -165,7 +166,8 @@ describe('ConcurrentCallbackQueue', () => {
 		}
 
 		try {
-			queue.enqueueAll([() => {}], {});
+			queue.enqueueAll([() => {
+			}], {});
 		} catch (e) {
 			expect(e.message).toBe('The "retries" parameter must be a positive number');
 		}

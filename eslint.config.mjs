@@ -1,6 +1,7 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
 import jsdoc from "eslint-plugin-jsdoc";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 // noinspection JSUnusedGlobalSymbols
 export default [
@@ -74,4 +75,5 @@ export default [
 			...pluginJs.configs.recommended.rules,
 		},
 	},
+	eslintConfigPrettier,
 ];
