@@ -1,5 +1,8 @@
 # Concurrent Callback Queue
 
+![GitHub Release](https://img.shields.io/github/v/release/Diomeh/concurrent_callback_queue)
+<img alt="NPM Version" src="https://img.shields.io/npm/v/%40diomeh%2Fconcurrent_callback_queue?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F%40diomeh%2Fconcurrent_callback_queue">
+
 This JavaScript module provides a concurrent callback queue that allows you to manage and execute multiple callbacks concurrently with various configuration options. The queue ensures controlled execution of the callbacks with options for handling errors, managing concurrency levels, and defining custom behavior on different queue states.
 
 ## Table of Contents
