@@ -5,6 +5,10 @@ on:
   release:
     types:
       - created
+      - edited
+
+    # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   # Build and test the package
@@ -16,7 +20,7 @@ jobs:
         with:
           node-version: 22
       # As we use pnpm, we need to create a npm package-lock.json file
-      - run: npm i --package-lock-only
+      - run: npm i
       - run: npm ci
       - run: npm test
 
@@ -35,7 +39,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
           scope: "@diomeh"
           always-auth: true
-      - run: npm i --package-lock-only
+      - run: npm i
       - run: npm ci
       - run: npm publish --access public --provenance true
         env:
@@ -55,7 +59,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: "@diomeh"
           always-auth: true
-      - run: npm i --package-lock-only
+      - run: npm i
       - run: npm ci
       # Force the registry to be the GitHub Package Registry
       # Without this, npm would try to publish to the npm registry

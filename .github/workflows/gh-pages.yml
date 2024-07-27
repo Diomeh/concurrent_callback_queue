@@ -7,9 +7,6 @@ on:
     # Targeting the default branch
     branches:
       - "master"
-    # Targeting the docs folder
-    paths:
-      - "docs/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
