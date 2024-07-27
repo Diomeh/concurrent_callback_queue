@@ -1,6 +1,6 @@
 {
   "name": "@diomeh/concurrent_callback_queue",
-  "version": "0.8.7",
+  "version": "0.8.16",
   "description": "A queue implementation that allows for callbacks to be executed concurrently",
   "keywords": [
     "queue",
