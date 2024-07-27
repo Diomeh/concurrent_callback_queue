@@ -4,3 +4,5 @@ node_modules/
 .direnv/
 .vscode/
 docs/
+coverage/
+tmp/
