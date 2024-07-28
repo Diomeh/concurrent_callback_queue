@@ -23,8 +23,6 @@
  */
 
 /**
- * Queue configuration options.
- *
  * Defines all the possible options that can be set when creating a new queue.
  *
  * @typedef {Object} QueueOptions
@@ -38,31 +36,41 @@
  */
 
 /**
- * Queue states definition.
- *
  * Defines all the possible states the queue can be in.
  *
  * @typedef {Object} QueueStates
- * @property {string} IDLE - The pending queue is empty and will start processing as soon as a callback is added.
- * @property {string} BUSY - The queue is processing callbacks.
- * @property {string} STOPPED - The queue has been stopped and will not process any more callbacks until it is started.
+ * @property {string} IDLE - There are no pending callbacks and the queue will start processing as soon as a callback is added.
+ * @property {string} BUSY - Currently processing callbacks up to the maximum concurrent limit.
+ * @property {string} STOPPED - Processing has been stopped and no further callbacks will be executed unless the queue is started again.
  */
 
 /**
- * Empty function used as a default callback.
+ * Empty function used as a default callback for lifecycle hooks and callback events.
  *
  * @returns {void}
+ * @ignore
  */
 const noop = () => {};
 
 /**
- * Default queue options
- *
  * The default options that are used when creating a new queue.
+ * This object is frozen to prevent modifications to the default values.
+ * For hooks, a do-nothing (noop) function is used.
  *
  * @type {QueueOptions}
+ *
+ * @example
+ * const defaultQueueOptions = {
+ *   autoStart: true,
+ *   maxConcurrent: 10,
+ *   onCallbackError: noop,
+ *   onCallbackSuccess: noop,
+ *   onQueueIdle: noop,
+ *   onQueueBusy: noop,
+ *   onQueueStop: noop,
+ * };
  */
-const defaultQueueOptions = {
+const defaultQueueOptions = Object.freeze({
   autoStart: true,
   maxConcurrent: 10,
   onCallbackError: noop,
@@ -70,44 +78,54 @@ const defaultQueueOptions = {
   onQueueIdle: noop,
   onQueueBusy: noop,
   onQueueStop: noop,
-};
+});
 
 /**
- * Queue states
- *
- * The possible states that the queue can be in.
+ * Enumerates the possible states that the queue can be in.
+ * This object is frozen to prevent modifications to the state values.
  *
  * @type {QueueStates}
+ * @example
+ * const QueueState = {
+ *   IDLE: "IDLE",
+ *   BUSY: "BUSY",
+ *   STOPPED: "STOPPED",
+ * };
  */
-const QueueState = {
+const QueueState = Object.freeze({
   IDLE: "IDLE",
   BUSY: "BUSY",
   STOPPED: "STOPPED",
-};
+});
 
 /**
- * A class to manage the execution of callbacks concurrently.
+ * A queue implementation that allows for concurrent execution of asynchronous operations.
  *
- * This class provides functionality to add, remove, and execute callback functions with a specified concurrency level.
- * It supports automatic retry on error, queue state management, and customizable callback events.
+ * This class provides a way to schedule and manage a queue of callback functions that will be executed concurrently, up to a specified limit.
+ * When the maximum number of concurrent callbacks is reached, the queue will wait until one of the running callbacks finishes before starting a new one.
+ * The queue can be configured to start automatically when a callback is added, and it can also be stopped and restarted as needed.
  *
- * @example
+ * A main use case is to manage asynchronous operations that need to be executed in parallel,
+ * such as making multiple API requests or processing a large number of files.
+ *
+ * @example Basic usage
+ * const queue = new ConcurrentCallbackQueue();
+ * queue.enqueue(() => fetch('https://httpstat.us/200,400?sleep=2000'));
+ *
+ * @example Custom options
  * const queue = new ConcurrentCallbackQueue({
- *     autoStart: false,
- *     maxConcurrent: 2,
- *     onCallbackError: (error) => console.error(error),
+ *    autoStart: false,
+ *    onCallbackError: (error) => console.error(error),
  * });
- *
- * for (let i = 0; i < 10; i++) {
- *     queue.enqueue(() => {
- *         const uri = 'https://httpstat.us/200,400?sleep=2000';
- *         return $.get(uri).done(() => {
- *             console.log(`Request ${i+1} completed`);
- *         });
- *     }, 3);
- * }
- *
+ * queue.enqueue(() => throw new Error('Error'));
  * queue.start();
+ *
+ * @example Multiple callbacks
+ * const queue = new ConcurrentCallbackQueue();
+ * queue.enqueueAll([
+ *   () => fetch('https://httpstat.us/200,400?sleep=2000'),
+ *   () => fetch('https://httpstat.us/200,400?sleep=2000'),
+ * ]);
  *
  * @author David Urbina (davidurbina.dev@gmail.com)
  * @version 0.8.16
