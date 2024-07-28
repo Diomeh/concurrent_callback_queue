@@ -130,7 +130,8 @@ const QueueState = Object.freeze({
  * @author David Urbina (davidurbina.dev@gmail.com)
  * @version 0.8.16
  * @since 2023-03-23
- * @tutorial concurrent-callback-queue
+ * @tutorial 01 - Basic Usage
+ * @tutorial 02 - Advanced Usage
  */
 class ConcurrentCallbackQueue {
   /**
