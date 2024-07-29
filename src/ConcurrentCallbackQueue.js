@@ -128,7 +128,7 @@ const QueueState = Object.freeze({
  * ]);
  *
  * @author David Urbina (davidurbina.dev@gmail.com)
- * @version 0.8.16
+ * @version 0.8.23
  * @since 2023-03-23
  * @tutorial 01 - Basic Usage
  * @tutorial 02 - Advanced Usage
