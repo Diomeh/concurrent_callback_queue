@@ -1,7 +1,7 @@
 {
   "name": "@diomeh/concurrent_callback_queue",
   "version": "0.8.16",
-  "description": "A queue implementation that allows for callbacks to be executed concurrently",
+  "description": "A simple, lightweight, zero dependencies pure JavaScript queue implementation that allows for parallel execution of asynchronous tasks.",
   "keywords": [
     "queue",
     "concurrent",
@@ -44,17 +44,16 @@
   "devDependencies": {
     "@eslint/js": "^9.7.0",
     "@types/jest": "^29.5.12",
+    "better-docs": "^2.7.3",
     "eslint": "9.x",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^48.8.3",
     "globals": "^15.8.0",
     "husky": "^9.1.3",
-    "ink-docstrap": "^1.3.2",
     "jest": "^29.7.0",
     "jsdoc": "~4.0.3",
     "lint-staged": "^15.2.7",
-    "prettier": "3.3.3",
-    "taffydb": "^2.7.3"
+    "prettier": "3.3.3"
   },
   "engines": {
     "npm": "*",

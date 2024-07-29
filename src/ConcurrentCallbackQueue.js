@@ -1,8 +1,28 @@
 "use strict";
 
-/**
- * Queue configuration options.
+/*
+ * Copyright 2024 David Urbina <davidurbina.dev@gmail.com>
  *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
  * Defines all the possible options that can be set when creating a new queue.
  *
  * @typedef {Object} QueueOptions
@@ -16,31 +36,41 @@
  */
 
 /**
- * Queue states definition.
- *
  * Defines all the possible states the queue can be in.
  *
  * @typedef {Object} QueueStates
- * @property {string} IDLE - The pending queue is empty and will start processing as soon as a callback is added.
- * @property {string} BUSY - The queue is processing callbacks.
- * @property {string} STOPPED - The queue has been stopped and will not process any more callbacks until it is started.
+ * @property {string} IDLE - There are no pending callbacks and the queue will start processing as soon as a callback is added.
+ * @property {string} BUSY - Currently processing callbacks up to the maximum concurrent limit.
+ * @property {string} STOPPED - Processing has been stopped and no further callbacks will be executed unless the queue is started again.
  */
 
 /**
- * Empty function used as a default callback.
+ * Empty function used as a default callback for lifecycle hooks and callback events.
  *
  * @returns {void}
+ * @ignore
  */
 const noop = () => {};
 
 /**
- * Default queue options
- *
  * The default options that are used when creating a new queue.
+ * This object is frozen to prevent modifications to the default values.
+ * For hooks, a do-nothing (noop) function is used.
  *
  * @type {QueueOptions}
+ *
+ * @example
+ * const defaultQueueOptions = {
+ *   autoStart: true,
+ *   maxConcurrent: 10,
+ *   onCallbackError: noop,
+ *   onCallbackSuccess: noop,
+ *   onQueueIdle: noop,
+ *   onQueueBusy: noop,
+ *   onQueueStop: noop,
+ * };
  */
-const defaultQueueOptions = {
+const defaultQueueOptions = Object.freeze({
   autoStart: true,
   maxConcurrent: 10,
   onCallbackError: noop,
@@ -48,49 +78,60 @@ const defaultQueueOptions = {
   onQueueIdle: noop,
   onQueueBusy: noop,
   onQueueStop: noop,
-};
+});
 
 /**
- * Queue states
- *
- * The possible states that the queue can be in.
+ * Enumerates the possible states that the queue can be in.
+ * This object is frozen to prevent modifications to the state values.
  *
  * @type {QueueStates}
+ * @example
+ * const QueueState = {
+ *   IDLE: "IDLE",
+ *   BUSY: "BUSY",
+ *   STOPPED: "STOPPED",
+ * };
  */
-const QueueState = {
+const QueueState = Object.freeze({
   IDLE: "IDLE",
   BUSY: "BUSY",
   STOPPED: "STOPPED",
-};
+});
 
 /**
- * A class to manage the execution of callbacks concurrently.
+ * A queue implementation that allows for concurrent execution of asynchronous operations.
  *
- * This class provides functionality to add, remove, and execute callback functions with a specified concurrency level.
- * It supports automatic retry on error, queue state management, and customizable callback events.
+ * This class provides a way to schedule and manage a queue of callback functions that will be executed concurrently, up to a specified limit.
+ * When the maximum number of concurrent callbacks is reached, the queue will wait until one of the running callbacks finishes before starting a new one.
+ * The queue can be configured to start automatically when a callback is added, and it can also be stopped and restarted as needed.
  *
- * @example
+ * A main use case is to manage asynchronous operations that need to be executed in parallel,
+ * such as making multiple API requests or processing a large number of files.
+ *
+ * @example Basic usage
+ * const queue = new ConcurrentCallbackQueue();
+ * queue.enqueue(() => fetch('https://httpstat.us/200,400?sleep=2000'));
+ *
+ * @example Custom options
  * const queue = new ConcurrentCallbackQueue({
- *     autoStart: false,
- *     maxConcurrent: 2,
- *     onCallbackError: (error) => console.error(error),
+ *    autoStart: false,
+ *    onCallbackError: (error) => console.error(error),
  * });
- *
- * for (let i = 0; i < 10; i++) {
- *     queue.enqueue(() => {
- *         const uri = 'https://httpstat.us/200,400?sleep=2000';
- *         return $.get(uri).done(() => {
- *             console.log(`Request ${i+1} completed`);
- *         });
- *     }, 3);
- * }
- *
+ * queue.enqueue(() => throw new Error('Error'));
  * queue.start();
+ *
+ * @example Multiple callbacks
+ * const queue = new ConcurrentCallbackQueue();
+ * queue.enqueueAll([
+ *   () => fetch('https://httpstat.us/200,400?sleep=2000'),
+ *   () => fetch('https://httpstat.us/200,400?sleep=2000'),
+ * ]);
  *
  * @author David Urbina (davidurbina.dev@gmail.com)
  * @version 0.8.16
  * @since 2023-03-23
- * @tutorial concurrent-callback-queue
+ * @tutorial 01 - Basic Usage
+ * @tutorial 02 - Advanced Usage
  */
 class ConcurrentCallbackQueue {
   /**
@@ -179,6 +220,9 @@ class ConcurrentCallbackQueue {
     return new ConcurrentCallbackQueue(options);
   }
 
+  /********************************************/
+  /** Internal API ******************************/
+
   /**
    * Initializes the queue configuration options, merging the defaults with the provided options.
    *
@@ -218,6 +262,135 @@ class ConcurrentCallbackQueue {
       }
     }
   }
+
+  /**
+   * Sets the state of the queue and triggers the corresponding event.
+   *
+   * @param {string} state - The new state of the queue.
+   * @returns {string} - The previous state of the queue.
+   * @private
+   */
+  #setState(state) {
+    const prevState = this.#state;
+    this.#state = state;
+
+    // Trigger queue state events as needed
+    switch (state) {
+      case QueueState.IDLE:
+        this.#options.onQueueIdle();
+        break;
+      case QueueState.BUSY:
+        this.#options.onQueueBusy();
+        break;
+      case QueueState.STOPPED:
+        this.#options.onQueueStop();
+        break;
+    }
+
+    return prevState;
+  }
+
+  /**
+   * Determines if the queue should be processed
+   *
+   * @returns {boolean} True if the queue should be processed, false otherwise
+   * @private
+   */
+  #shouldRun() {
+    return (
+      this.#state === QueueState.BUSY &&
+      this.#concurrent < this.#options.maxConcurrent &&
+      this.#pending.length > 0
+    );
+  }
+
+  /**
+   * Handles errors that occur during the execution of a callback.
+   *
+   * @param {Error} error - The error object.
+   * @returns {void}
+   * @private
+   */
+  #handleError(error) {
+    this.#options.onCallbackError(error);
+  }
+
+  /**
+   * Executes the callbacks in the queue concurrently.
+   *
+   * @returns {void}
+   * @private
+   */
+  #run() {
+    if (this.#state === QueueState.BUSY) {
+      if (this.#pending.length > 0) {
+        while (this.#shouldRun()) {
+          const callback = this.dequeue();
+          this.#concurrent++;
+          const index = Date.now();
+          this.#running.set(index, callback);
+
+          Promise.resolve()
+            .then(() => callback())
+            .then(() => this.#options.onCallbackSuccess())
+            .catch((error) => this.#handleError(error))
+            .finally(() => {
+              this.#concurrent--;
+              this.#running.delete(index);
+              this.#run();
+            });
+        }
+      } else if (this.#concurrent === 0) {
+        this.#setState(QueueState.IDLE);
+      }
+    }
+  }
+
+  /********************************************/
+  /** Public API ******************************/
+
+  /********************************************/
+  /** Getters *********************************/
+
+  /**
+   * Returns the current state of the queue.
+   *
+   * @returns {string}
+   * @public
+   */
+  getState() {
+    return this.#state;
+  }
+
+  /**
+   * Returns the number of pending callbacks in the queue.
+   *
+   * @returns {number}
+   * @public
+   */
+  getPendingCount() {
+    return this.#pending.length;
+  }
+
+  /**
+   * Returns the number of running callbacks in the queue.
+   *
+   * @returns {number}
+   * @public
+   */
+  getRunningCount() {
+    return this.#concurrent;
+  }
+
+  /**
+   * Returns the current queue configuration options.
+   */
+  getOptions() {
+    return this.#options;
+  }
+
+  /********************************************/
+  /** Queue Operations ************************/
 
   /**
    * Adds a callback to the queue, if autoStart is enabled the queue execution starts.
@@ -308,6 +481,31 @@ class ConcurrentCallbackQueue {
   }
 
   /**
+   * Removes a pending callback from the queue without stopping the queue execution.
+   *
+   * @return {Function} Removed callback
+   * @public
+   */
+  dequeue() {
+    return this.#pending.shift();
+  }
+
+  /**
+   * Removes all pending callbacks from the queue without stopping the queue execution.
+   *
+   * @returns {Array<Function>} List of pending callbacks
+   * @public
+   */
+  dequeueAll() {
+    const queue = this.#pending;
+    this.#pending = [];
+    return queue;
+  }
+
+  /********************************************/
+  /** Queue Control ***************************/
+
+  /**
    * Starts the execution of the queue.
    *
    * If the queue is stopped at any point and then restarted,
@@ -323,89 +521,6 @@ class ConcurrentCallbackQueue {
 
     this.#setState(QueueState.BUSY);
     this.#run();
-  }
-
-  /**
-   * Sets the state of the queue and triggers the corresponding event.
-   *
-   * @param {string} state - The new state of the queue.
-   * @returns {string} - The previous state of the queue.
-   * @private
-   */
-  #setState(state) {
-    const prevState = this.#state;
-    this.#state = state;
-
-    // Trigger queue state events as needed
-    switch (state) {
-      case QueueState.IDLE:
-        this.#options.onQueueIdle();
-        break;
-      case QueueState.BUSY:
-        this.#options.onQueueBusy();
-        break;
-      case QueueState.STOPPED:
-        this.#options.onQueueStop();
-        break;
-    }
-
-    return prevState;
-  }
-
-  /**
-   * Executes the callbacks in the queue concurrently.
-   *
-   * @returns {void}
-   * @private
-   */
-  #run() {
-    if (this.#state === QueueState.BUSY) {
-      if (this.#pending.length > 0) {
-        while (this.#shouldProcess()) {
-          const callback = this.dequeue();
-          this.#concurrent++;
-          const index = Date.now();
-          this.#running.set(index, callback);
-
-          Promise.resolve()
-            .then(() => callback())
-            .then(() => this.#options.onCallbackSuccess())
-            .catch((error) => this.#handleError(error))
-            .finally(() => {
-              this.#concurrent--;
-              this.#running.delete(index);
-              this.#run();
-            });
-        }
-      } else if (this.#concurrent === 0) {
-        this.#setState(QueueState.IDLE);
-      }
-    }
-  }
-
-  /**
-   * Determines if the queue should be processed
-   *
-   * @returns {boolean} True if the queue should be processed, false otherwise
-   * @private
-   */
-  #shouldProcess() {
-    return (
-      this.#state === QueueState.BUSY &&
-      this.#concurrent < this.#options.maxConcurrent &&
-      this.#pending.length > 0
-    );
-  }
-
-  /**
-   * Handles errors that occur during the execution of a callback.
-   *
-   * @param {Error} error - The error object.
-   * @returns {void}
-   * @private
-   */
-  #handleError(error) {
-    this.#options.onCallbackError(error);
   }
 
   /**
@@ -432,65 +547,6 @@ class ConcurrentCallbackQueue {
   clear() {
     this.stop();
     return this.dequeueAll();
-  }
-
-  /**
-   * Removes a pending callback from the queue without stopping the queue execution.
-   *
-   * @return {Function} Removed callback
-   * @public
-   */
-  dequeue() {
-    return this.#pending.shift();
-  }
-
-  /**
-   * Removes all pending callbacks from the queue without stopping the queue execution.
-   *
-   * @returns {Array<Function>} List of pending callbacks
-   * @public
-   */
-  dequeueAll() {
-    const queue = this.#pending;
-    this.#pending = [];
-    return queue;
-  }
-
-  /**
-   * Returns the current state of the queue.
-   *
-   * @returns {string}
-   * @public
-   */
-  getState() {
-    return this.#state;
-  }
-
-  /**
-   * Returns the number of pending callbacks in the queue.
-   *
-   * @returns {number}
-   * @public
-   */
-  getPendingCount() {
-    return this.#pending.length;
-  }
-
-  /**
-   * Returns the number of running callbacks in the queue.
-   *
-   * @returns {number}
-   * @public
-   */
-  getRunningCount() {
-    return this.#concurrent;
-  }
-
-  /**
-   * Returns the current queue configuration options.
-   */
-  getOptions() {
-    return this.#options;
   }
 }
 

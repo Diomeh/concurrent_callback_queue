@@ -1,7 +1,8 @@
 {
     "plugins": [
         "plugins/markdown",
-        "plugins/summarize"
+        "plugins/summarize",
+        "node_modules/better-docs/category"
     ],
     "markdown": {
         "idInHeadings": true
@@ -23,25 +24,26 @@
         ]
     },
     "templates": {
-        "cleverLinks": false,
-        "monospaceLinks": false,
-        "systemName": "Concurrent Callback Queue",
-        "copyright": "David Urbina 2024",
-        "includeDate": true,
-        "navType": "vertical",
-        "theme": "superhero",
-        "linenums": true,
-        "collapseSymbols": true,
-        "inverseNav": false,
-        "outputSourceFiles": true,
-        "dateFormat": "YYYY-MM-DD",
-        "syntaxTheme": "dark",
-        "search": true
+        "cleverLinks": true,
+        "monospaceLinks": true,
+        "search": true,
+        "better-docs": {
+            "name": "Concurrent Callback Queue",
+            "description": "A simple, lightweight, zero dependencies pure JavaScript queue implementation that allows for parallel execution of asynchronous tasks.",
+            "navigation": [
+                {
+                    "label": "GitHub",
+                    "href": "https://github.com/Diomeh/concurrent_callback_queue"
+                }
+            ]
+        }
     },
     "opts": {
-        "template": "./node_modules/ink-docstrap/template",
+        "encoding": "utf8",
+        "template": "./node_modules/better-docs",
         "destination": "./docs/",
         "recurse": true,
+        "verbose": true,
         "readme": "./README.md",
         "tutorials": "./tutorials",
         "package": "./package.json"
