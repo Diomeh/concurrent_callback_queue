@@ -291,20 +291,6 @@ class ConcurrentCallbackQueue {
   }
 
   /**
-   * Determines if the queue should be processed
-   *
-   * @returns {boolean} True if the queue should be processed, false otherwise
-   * @private
-   */
-  #shouldRun() {
-    return (
-      this.#state === QueueState.BUSY &&
-      this.#concurrent < this.#options.maxConcurrent &&
-      this.#pending.length > 0
-    );
-  }
-
-  /**
    * Handles errors that occur during the execution of a callback.
    *
    * @param {Error} error - The error object.
@@ -316,33 +302,67 @@ class ConcurrentCallbackQueue {
   }
 
   /**
+   * Builds a retry mechanism for a callback function.
+   *
+   * @param {Function} callback - The callback function to execute.
+   * @param {number} [retries=0] - Number of retry attempts in case of an error.
+   * @returns {Function} - The callback function wrapped in a retry mechanism.
+   */
+  #buildRetryCallback(callback, retries = 0) {
+    // If no retries are needed, return the original callback
+    if (retries === 0) {
+      return callback;
+    }
+
+    const retryCallback = async (currentRetry) => {
+      try {
+        await callback();
+      } catch (error) {
+        if (currentRetry < retries) {
+          // Retry the callback if the number of retries has not been reached
+          // Exec error hook
+          this.#handleError(error);
+          await retryCallback(currentRetry + 1);
+        } else {
+          // Rethrow the error if the number of retries has been reached
+          throw error;
+        }
+      }
+    };
+
+    return retryCallback;
+  }
+
+  /**
    * Executes the callbacks in the queue concurrently.
    *
    * @returns {void}
    * @private
    */
   #run() {
-    if (this.#state === QueueState.BUSY) {
-      if (this.#pending.length > 0) {
-        while (this.#shouldRun()) {
-          const callback = this.dequeue();
-          this.#concurrent++;
-          const index = Date.now();
-          this.#running.set(index, callback);
+    while (
+      this.#state === QueueState.BUSY &&
+      this.#concurrent < this.#options.maxConcurrent &&
+      this.#pending.length > 0
+    ) {
+      const callback = this.dequeue();
+      this.#concurrent++;
+      const index = Date.now();
+      this.#running.set(index, callback);
 
-          Promise.resolve()
-            .then(() => callback())
-            .then(() => this.#options.onCallbackSuccess())
-            .catch((error) => this.#handleError(error))
-            .finally(() => {
-              this.#concurrent--;
-              this.#running.delete(index);
-              this.#run();
-            });
-        }
-      } else if (this.#concurrent === 0) {
-        this.#setState(QueueState.IDLE);
-      }
+      Promise.resolve()
+        .then(() => callback())
+        .then(() => this.#options.onCallbackSuccess())
+        .catch((error) => this.#handleError(error))
+        .finally(() => {
+          this.#concurrent--;
+          this.#running.delete(index);
+          this.#run();
+        });
+    }
+
+    if (this.#concurrent === 0) {
+      this.#setState(QueueState.IDLE);
     }
   }
 
@@ -414,18 +434,7 @@ class ConcurrentCallbackQueue {
       throw new Error('The "retries" parameter must be a positive number');
     }
 
-    const retryCallback = async (currentRetry) => {
-      try {
-        await callback();
-      } catch (error) {
-        if (currentRetry < retries) {
-          await retryCallback(currentRetry + 1);
-        } else {
-          this.#handleError(error);
-        }
-      }
-    };
-
+    const retryCallback = this.#buildRetryCallback(callback, retries);
     this.#pending.push(() => retryCallback(0));
     if (this.#options.autoStart) {
       this.start();
@@ -458,18 +467,7 @@ class ConcurrentCallbackQueue {
     }
 
     const retryCallbacks = callbacks.map((callback) => {
-      const retryCallback = async (currentRetry) => {
-        try {
-          await callback();
-        } catch (error) {
-          if (currentRetry < retries) {
-            await retryCallback(currentRetry + 1);
-          } else {
-            this.#handleError(error);
-          }
-        }
-      };
-
+      const retryCallback = this.#buildRetryCallback(callback, retries);
       return () => retryCallback(0);
     });
 

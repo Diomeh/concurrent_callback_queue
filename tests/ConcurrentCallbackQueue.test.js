@@ -16,7 +16,7 @@ const compareOptions = (options, expected) => {
 	expect(options.onQueueStop).toBe(expected.onQueueStop);
 }
 
-describe('ConcurrentCallbackQueue', () => {
+describe('unit', () => {
 	test('should create an instance with default options', () => {
 		const queue = new ConcurrentCallbackQueue();
 		const options = queue.getOptions();
@@ -320,5 +320,210 @@ describe('ConcurrentCallbackQueue', () => {
 		queue.start();
 		queue.stop();
 		expect(onQueueStop).toHaveBeenCalled();
+	});
+});
+
+describe('integration', () => {
+	test('should process callbacks in parallel up to maxConcurrent limit', async () => {
+		const callbackResults = [];
+		const queue = new ConcurrentCallbackQueue({
+			autoStart: false,
+			maxConcurrent: 2,
+		});
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(1)), 100))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(2)), 50))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(3)), 10))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 200));
+
+		expect(callbackResults).toEqual([2, 3, 1]);
+	});
+
+	test('should handle sequential and parallel callback processing correctly', async () => {
+		const callbackResults = [];
+		const queue = new ConcurrentCallbackQueue({
+			autoStart: false,
+			maxConcurrent: 2,
+		});
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('A')), 100))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('B')), 50))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('C')), 10))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('D')), 20))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('E')), 60))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 300));
+
+		expect(callbackResults).toEqual(['B', 'C', 'D', 'A', 'E']);
+	});
+
+	test('should retry failed callbacks up to the specified retry limit', async () => {
+		const queue = new ConcurrentCallbackQueue();
+		const failingCallback = jest.fn().mockRejectedValue(new Error('Retry Test Error'));
+
+		queue.enqueue(failingCallback, 3); // 3 retries
+
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 400));
+
+		expect(failingCallback).toHaveBeenCalledTimes(4); // initial + 3 retries
+	});
+
+	test('should process callbacks in sequence when maxConcurrent is 1', async () => {
+		const callbackResults = [];
+		const queue = new ConcurrentCallbackQueue({
+			autoStart: false,
+			maxConcurrent: 1,
+		});
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(1)), 100))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(2)), 50))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(3)), 10))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(4)), 20))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 300));
+
+		expect(callbackResults).toEqual([1, 2, 3, 4]);
+	});
+
+	test('should call lifecycle hooks appropriately during processing', async () => {
+		const onCallbackSuccess = jest.fn();
+		const onCallbackError = jest.fn();
+		const onQueueIdle = jest.fn();
+		const onQueueBusy = jest.fn();
+		const onQueueStop = jest.fn();
+
+		const queue = new ConcurrentCallbackQueue({
+			autoStart: true,
+			maxConcurrent: 1,
+			onCallbackSuccess,
+			onCallbackError,
+			onQueueIdle,
+			onQueueBusy,
+			onQueueStop,
+		});
+
+		const successfulCallback = jest.fn().mockResolvedValue(true);
+		const failingCallback = jest.fn().mockRejectedValue(new Error('Test Error'));
+
+		queue.enqueue(successfulCallback);
+		queue.enqueue(failingCallback, 1); // 1 retry
+
+		await new Promise(resolve => setTimeout(resolve, 300));
+
+		expect(onCallbackSuccess).toHaveBeenCalledTimes(1);
+		expect(onCallbackError).toHaveBeenCalledTimes(2); // initial + 1 retry
+		expect(onQueueIdle).toHaveBeenCalled();
+		expect(onQueueBusy).toHaveBeenCalled();
+		expect(onQueueStop).not.toHaveBeenCalled();
+	});
+
+	test('should pause and resume the queue correctly', async () => {
+		const callbackResults = [];
+		const queue = new ConcurrentCallbackQueue({ maxConcurrent: 2 });
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('A')), 100))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('B')), 50))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('C')), 10))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		// Pause the queue after some time
+		setTimeout(() => queue.stop(), 20);
+
+		// Resume the queue after some time
+		setTimeout(() => queue.start(), 150);
+
+		await new Promise(resolve => setTimeout(resolve, 300));
+
+		expect(callbackResults).toEqual(['B', 'A', 'C']);
+	});
+
+	test('should handle a mix of successful and failing callbacks', async () => {
+		const callbackResults = [];
+		const onCallbackError = jest.fn();
+		const queue = new ConcurrentCallbackQueue({
+			maxConcurrent: 2,
+			onCallbackError,
+		});
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('Success1')), 50))),
+			jest.fn(() => new Promise((resolve, reject) => setTimeout(() => reject(new Error('Fail1')), 30))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('Success2')), 10))),
+			jest.fn(() => new Promise((resolve, reject) => setTimeout(() => reject(new Error('Fail2')), 20))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 200));
+
+		expect(callbackResults).toEqual(['Success2', 'Success1']);
+		expect(onCallbackError).toHaveBeenCalledTimes(2);
+	});
+
+	test('should process long-running callbacks without issues', async () => {
+		const callbackResults = [];
+		const queue = new ConcurrentCallbackQueue({ maxConcurrent: 2 });
+
+		const callbacks = [
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('Long1')), 200))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('Short1')), 50))),
+			jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push('Short2')), 30))),
+		];
+
+		queue.enqueueAll(callbacks);
+		queue.start();
+
+		await new Promise(resolve => setTimeout(resolve, 300));
+
+		expect(callbackResults).toEqual(['Short1', 'Short2', 'Long1']);
+	});
+
+	test('should respect maxConcurrent limit when set to various values', async () => {
+		const callbackResults = [];
+
+		const runTest = async (maxConcurrent, expectedResults) => {
+			const queue = new ConcurrentCallbackQueue({ maxConcurrent });
+			const callbacks = [
+				jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(1)), 100))),
+				jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(2)), 50))),
+				jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(3)), 10))),
+				jest.fn(() => new Promise(resolve => setTimeout(() => resolve(callbackResults.push(4)), 15))),
+			];
+
+			queue.enqueueAll(callbacks);
+			queue.start();
+
+			await new Promise(resolve => setTimeout(resolve, 200));
+
+			expect(callbackResults).toEqual(expectedResults);
+			callbackResults.length = 0; // Clear the results for the next test
+		};
+
+		await runTest(1, [1, 2, 3, 4]);
+		await runTest(2, [2, 3, 4, 1]);
+		await runTest(3, [3, 4, 2, 1]);
 	});
 });
