@@ -20,6 +20,8 @@ export default [
 			ecmaVersion: "latest",
 			sourceType: "commonjs",
 			globals: {
+				...globals.browser,
+				...globals.node,
 			},
 		},
 		plugins: {

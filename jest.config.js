@@ -139,8 +139,8 @@ const config = {
 	// setupFilesAfterEnv: [],
 
 	// The number of seconds after which a test is considered as slow and reported as such in the results.
-	// Use 5 minutes as the default timeout, this is because of how long could a test for the full application could take.
-	slowTestThreshold: 300,
+	// Use 1 minute as the default timeout, this is because of how long a test for the full application could take.
+	slowTestThreshold: 60,
 
 	// A list of paths to snapshot serializer modules Jest should use for snapshot testing
 	// snapshotSerializers: [],
