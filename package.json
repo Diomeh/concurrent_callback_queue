@@ -1,6 +1,6 @@
 {
   "name": "@diomeh/concurrent_callback_queue",
-  "version": "0.8.26",
+  "version": "0.8.28",
   "description": "A simple, lightweight, zero dependencies pure JavaScript queue implementation that allows for parallel execution of asynchronous tasks.",
   "keywords": [
     "queue",
