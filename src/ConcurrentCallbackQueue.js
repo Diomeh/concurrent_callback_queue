@@ -334,36 +334,75 @@ class ConcurrentCallbackQueue {
   }
 
   /**
-   * Executes the callbacks in the queue concurrently.
+   * Processes the next callback in the queue, if possible.
+   *
+   * @returns {void}
+   * @private
+   */
+  #processNext() {
+    // Exit only if either the queue is not busy or there are no more callbacks to process
+    if (this.#state !== QueueState.BUSY && this.#pending.length === 0) {
+      // Check if this is the last running task and set to IDLE if so
+      if (this.#concurrent === 0) {
+        this.#setState(QueueState.IDLE);
+      }
+      return;
+    }
+
+    // Wait until there is room for more concurrent tasks if needed
+    if (this.#concurrent >= this.#options.maxConcurrent) {
+      return;
+    }
+
+    // Are there any pending callbacks?
+    const index = Date.now();
+    const callback = this.dequeue();
+    if (!callback) {
+      // Update queue state
+      this.#setState(QueueState.IDLE);
+      return;
+    }
+
+    Promise.resolve()
+      .then(() => {
+        // Update state
+        this.#concurrent++;
+        this.#running.set(index, callback);
+
+        return callback();
+      })
+      .then(() => this.#options.onCallbackSuccess())
+      .catch((error) => this.#handleError(error))
+      .finally(() => {
+        this.#concurrent--;
+        this.#running.delete(index);
+
+        // Check if this is the last running task and set to IDLE if so
+        if (this.#concurrent === 0 && this.#pending.length === 0) {
+          this.#setState(QueueState.IDLE);
+        }
+      });
+  }
+
+  /**
+   * Main execution loop for the queue.
    *
    * @returns {void}
    * @private
    */
   #run() {
-    while (
-      this.#state === QueueState.BUSY &&
-      this.#concurrent < this.#options.maxConcurrent &&
-      this.#pending.length > 0
-    ) {
-      const callback = this.dequeue();
-      this.#concurrent++;
-      const index = Date.now();
-      this.#running.set(index, callback);
+    // Immediately process the first callback
+    this.#processNext();
 
-      Promise.resolve()
-        .then(() => callback())
-        .then(() => this.#options.onCallbackSuccess())
-        .catch((error) => this.#handleError(error))
-        .finally(() => {
-          this.#concurrent--;
-          this.#running.delete(index);
-          this.#run();
-        });
-    }
+    // Set an interval to process the next callback
+    const interval = setInterval(() => {
+      this.#processNext();
 
-    if (this.#concurrent === 0) {
-      this.#setState(QueueState.IDLE);
-    }
+      // Stop the interval if the queue is stopped or there are no more pending callbacks
+      if (this.#state === QueueState.STOPPED || this.#pending.length === 0) {
+        clearInterval(interval);
+      }
+    });
   }
 
   /********************************************/

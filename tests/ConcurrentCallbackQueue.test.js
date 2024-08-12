@@ -175,18 +175,20 @@ describe('unit', () => {
 
 	test('should stop and clear the pending queue', () => {
 		const mockCallback = jest.fn().mockResolvedValue(0);
-		const queue = new ConcurrentCallbackQueue();
+		const onQueueStop = jest.fn();
+		const queue = new ConcurrentCallbackQueue({ onQueueStop });
 
 		queue.enqueue(mockCallback);
 		queue.stop();
 
 		const ret = queue.dequeue();
 
+		expect(ret).toBe(undefined);
 		expect(queue.getState()).toBe(QueueState.STOPPED);
 		expect(mockCallback).not.toHaveBeenCalled();
+		expect(onQueueStop).toHaveBeenCalled();
 		expect(queue.getPendingCount()).toBe(0);
-		expect(queue.getRunningCount()).toBe(1);
-		expect(ret).toBe(undefined);
+		expect(queue.getRunningCount()).toBe(0);
 	});
 
 	test('should clear all pending callbacks', () => {
