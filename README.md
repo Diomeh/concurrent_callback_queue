@@ -2,6 +2,8 @@
 
 ![GitHub Release](https://img.shields.io/github/v/release/Diomeh/concurrent_callback_queue)
 <img alt="NPM Version" src="https://img.shields.io/npm/v/%40diomeh%2Fconcurrent_callback_queue?link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F%40diomeh%2Fconcurrent_callback_queue">
+[![jsDelivr](https://data.jsdelivr.com/v1/package/npm/@diomeh/concurrent_callback_queue/badge)](https://www.jsdelivr.com/package/npm/@diomeh/concurrent_callback_queue)
+![Code Coverage](https://img.shields.io/badge/coverage-99.36%25-yellowgreen)
 
 A simple, lightweight, zero dependencies pure JavaScript queue implementation that allows for asynchronous operations such as API calls
 heavy computations or large file processing to be scheduled for execution in a parallel fashion.
