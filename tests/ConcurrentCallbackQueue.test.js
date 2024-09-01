@@ -211,8 +211,20 @@ describe('unit', () => {
 			expect(callback).not.toHaveBeenCalled();
 		});
 
-		clearedCallbacks.forEach((callback) => {
-			expect(callback).toBeInstanceOf(Function);
+		expect(clearedCallbacks.length).toBe(length);
+
+		clearedCallbacks.forEach((tuple) => {
+			expect(tuple).toHaveProperty('callback');
+			expect(tuple).toHaveProperty('retries');
+
+			// Assertion fails mysteriously
+			// expect(tuple?.callback).toBeInstanceOf(Function);
+			// expect(received).toBeInstanceOf(expected)
+			// Expected constructor: Function
+			// Received constructor: Function
+
+			expect(typeof tuple?.callback).toBe('function');
+			expect(typeof tuple?.retries).toBe('number');
 		});
 	});
 
