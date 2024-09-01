@@ -1,3 +1,5 @@
+"use strict";
+
 /*
  * @module @diomeh/concurrent_callback_queue
  * @license MIT
@@ -618,4 +620,8 @@ class ConcurrentCallbackQueue {
   }
 }
 
-export { ConcurrentCallbackQueue, QueueState, defaultQueueOptions };
+module.exports = {
+  ConcurrentCallbackQueue,
+  QueueState,
+  defaultQueueOptions,
+};
