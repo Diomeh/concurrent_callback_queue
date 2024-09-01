@@ -60,8 +60,19 @@ const queue = new ConcurrentCallbackQueue();
 
 You can also include the script directly in your HTML file using the [jsDelivr](https://www.jsdelivr.com/) CDN:
 
+As a module:
+
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@diomeh/concurrent_callback_queue/src/ConcurrentCallbackQueue.js"></script>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/@diomeh/concurrent_callback_queue/dist/ConcurrentCallbackQueue.esm.js"
+></script>
+```
+
+As a script:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@diomeh/concurrent_callback_queue/dist/ConcurrentCallbackQueue.iife.min.js"></script>
 ```
 
 This will expose the `ConcurrentCallbackQueue` class globally, and you can use it in your JavaScript code:
