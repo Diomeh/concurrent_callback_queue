@@ -45,6 +45,14 @@
  */
 
 /**
+ * Defines the structure of a callback tuple.
+ *
+ * @typedef {Object} CallbackTuple
+ * @property {Function} callback - The callback function to execute.
+ * @property {number} retries - Number of retry attempts in case of an error.
+ */
+
+/**
  * Empty function used as a default callback for lifecycle hooks and callback events.
  *
  * @returns {void}
@@ -139,7 +147,7 @@ class ConcurrentCallbackQueue {
    *
    * This property holds an array of functions representing the callbacks that are waiting to be executed.
    *
-   * @type {Array<Function>}
+   * @type {Array<CallbackTuple>}
    * @private
    */
   #pending;
@@ -304,15 +312,12 @@ class ConcurrentCallbackQueue {
   /**
    * Builds a retry mechanism for a callback function.
    *
-   * @param {Function} callback - The callback function to execute.
-   * @param {number} [retries=0] - Number of retry attempts in case of an error.
+   * @param {CallbackTuple} tuple - Tuple containing the callback function and the number of retries.
    * @returns {Function} - The callback function wrapped in a retry mechanism.
    */
-  #buildRetryCallback(callback, retries = 0) {
-    // If no retries are needed, return the original callback
-    if (retries === 0) {
-      return callback;
-    }
+  #buildRetryCallback(tuple) {
+    const callback = tuple?.callback;
+    const retries = tuple?.retries || 0;
 
     const retryCallback = async (currentRetry) => {
       try {
@@ -330,7 +335,7 @@ class ConcurrentCallbackQueue {
       }
     };
 
-    return retryCallback;
+    return () => retryCallback(0);
   }
 
   /**
@@ -340,28 +345,38 @@ class ConcurrentCallbackQueue {
    * @private
    */
   #processNext() {
-    // Exit only if either the queue is not busy or there are no more callbacks to process
-    if (this.#state !== QueueState.BUSY && this.#pending.length === 0) {
-      // Check if this is the last running task and set to IDLE if so
+    if (
+      // Has the user stopped the queue?
+      this.#state === QueueState.STOPPED ||
+      // Do we have room for more concurrent tasks?
+      this.#concurrent >= this.#options.maxConcurrent
+    ) {
+      return;
+    }
+
+    // Are there any more pending callbacks?
+    if (this.#pending.length === 0) {
+      // Are we done processing all callbacks?
+      // If so, idle until a new callback is added
       if (this.#concurrent === 0) {
         this.#setState(QueueState.IDLE);
       }
+
       return;
     }
 
-    // Wait until there is room for more concurrent tasks if needed
-    if (this.#concurrent >= this.#options.maxConcurrent) {
-      return;
-    }
-
-    // Are there any pending callbacks?
-    const index = Date.now();
-    const callback = this.dequeue();
-    if (!callback) {
-      // Update queue state
+    // Prevent any race conditions by checking the tuple directly
+    // as dequeue() could return undefined if the queue is empty
+    const tuple = this.dequeue();
+    if (!tuple) {
+      // idle until a new callback is added
       this.#setState(QueueState.IDLE);
       return;
     }
+
+    // Build a retry mechanism for the callback
+    const callback = this.#buildRetryCallback(tuple);
+    const index = Date.now();
 
     Promise.resolve()
       .then(() => {
@@ -377,8 +392,18 @@ class ConcurrentCallbackQueue {
         this.#concurrent--;
         this.#running.delete(index);
 
+        // This block could be executed after the queue has been stopped
+        // or the main execution interval has been cleared
+        // therefore, we need to update state even if it looks redundant
+        // to avoid race conditions
+
         // Check if this is the last running task and set to IDLE if so
-        if (this.#concurrent === 0 && this.#pending.length === 0) {
+        // only when user has not stopped the queue
+        if (
+          this.#state === QueueState.BUSY &&
+          this.#concurrent === 0 &&
+          this.#pending.length === 0
+        ) {
           this.#setState(QueueState.IDLE);
         }
       });
@@ -394,12 +419,22 @@ class ConcurrentCallbackQueue {
     // Immediately process the first callback
     this.#processNext();
 
-    // Set an interval to process the next callback
+    // Use an interval to process the next callback
+    // This allows promises to resolve in the next microtask
+    // while still processing the next callback in the queue
+
+    // A loop will run forever as queue state updates are done within promise resolution
+    // and promises are only resolved on the next microtask after loop iteration
+
+    // OTOH, while a recursive approach could be used, with big enough queues
+    // it could lead to a stack overflow
     const interval = setInterval(() => {
       this.#processNext();
 
-      // Stop the interval if the queue is stopped or there are no more pending callbacks
-      if (this.#state === QueueState.STOPPED || this.#pending.length === 0) {
+      // Clear the interval after we're done processing all callbacks
+      // or if the queue has been stopped by the user
+      // State updates are done within promise resolution in #processNext
+      if (this.#state !== QueueState.BUSY || this.#pending.length === 0) {
         clearInterval(interval);
       }
     });
@@ -473,8 +508,7 @@ class ConcurrentCallbackQueue {
       throw new Error('The "retries" parameter must be a positive number');
     }
 
-    const retryCallback = this.#buildRetryCallback(callback, retries);
-    this.#pending.push(() => retryCallback(0));
+    this.#pending.push({ callback, retries });
     if (this.#options.autoStart) {
       this.start();
     }
@@ -505,12 +539,9 @@ class ConcurrentCallbackQueue {
       throw new Error('The "retries" parameter must be a positive number');
     }
 
-    const retryCallbacks = callbacks.map((callback) => {
-      const retryCallback = this.#buildRetryCallback(callback, retries);
-      return () => retryCallback(0);
-    });
-
-    this.#pending.push(...retryCallbacks);
+    // Map callbacks to a <function, number> tuple to store the number of retries
+    const tuples = callbacks.map((callback) => ({ callback, retries }));
+    this.#pending.push(...tuples);
 
     if (this.#options.autoStart) {
       this.start();
@@ -518,9 +549,9 @@ class ConcurrentCallbackQueue {
   }
 
   /**
-   * Removes a pending callback from the queue without stopping the queue execution.
+   * Removes a pending callback from the queue without stopping execution.
    *
-   * @return {Function} Removed callback
+   * @return {CallbackTuple|undefined} Removed callback tuple or undefined if the queue is empty.
    * @public
    */
   dequeue() {
@@ -530,7 +561,7 @@ class ConcurrentCallbackQueue {
   /**
    * Removes all pending callbacks from the queue without stopping the queue execution.
    *
-   * @returns {Array<Function>} List of pending callbacks
+   * @returns {Array<CallbackTuple>} List of pending callbacks
    * @public
    */
   dequeueAll() {
@@ -578,7 +609,7 @@ class ConcurrentCallbackQueue {
   /**
    * Stops the execution of the queue and removes all pending callbacks from it.
    *
-   * @returns {Array<Function>} List of pending callbacks
+   * @returns {Array<CallbackTuple>} List of pending callbacks
    * @public
    */
   clear() {
