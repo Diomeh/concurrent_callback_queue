@@ -1,5 +1,3 @@
-"use strict";
-
 /*
  * Copyright 2024 David Urbina <davidurbina.dev@gmail.com>
  *
@@ -618,8 +616,4 @@ class ConcurrentCallbackQueue {
   }
 }
 
-module.exports = {
-  ConcurrentCallbackQueue,
-  QueueState,
-  defaultQueueOptions,
-};
+export { ConcurrentCallbackQueue, QueueState, defaultQueueOptions };
