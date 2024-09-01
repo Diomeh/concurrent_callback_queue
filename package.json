@@ -27,7 +27,8 @@
   ],
   "files": [
     "./src/**/*",
-    "./tutorial/**/*"
+    "./tutorials/**/*",
+    "./dist/**/*"
   ],
   "source": "./src/ConcurrentCallbackQueue.js",
   "main": "./dist/ConcurrentCallbackQueue.cjs.js",
