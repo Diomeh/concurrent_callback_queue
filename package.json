@@ -29,7 +29,10 @@
     "./src/**/*",
     "./tutorial/**/*"
   ],
-  "main": "./src/ConcurrentCallbackQueue.js",
+  "source": "./src/ConcurrentCallbackQueue.js",
+  "main": "./dist/ConcurrentCallbackQueue.cjs.js",
+  "module": "./dist/ConcurrentCallbackQueue.esm.js",
+  "browser": "./dist/ConcurrentCallbackQueue.iife.min.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Diomeh/concurrent_callback_queue.git"
@@ -39,12 +42,14 @@
     "test": "jest",
     "docs": "jsdoc -c jsdoc.config.json",
     "lint": "eslint --cache --fix .",
-    "lint:staged": "lint-staged"
+    "lint:staged": "lint-staged",
+    "build": "node esbuild.config.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",
     "@types/jest": "^29.5.12",
     "better-docs": "^2.7.3",
+    "esbuild": "0.23.1",
     "eslint": "9.x",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsdoc": "^48.8.3",
@@ -56,8 +61,7 @@
     "prettier": "3.3.3"
   },
   "engines": {
-    "npm": "*",
-    "node": "*"
+    "node": ">=14"
   },
   "packageManager": "pnpm@9.6.0+sha512.38dc6fba8dba35b39340b9700112c2fe1e12f10b17134715a4aa98ccf7bb035e76fd981cf0bb384dfa98f8d6af5481c2bef2f4266a24bfa20c34eb7147ce0b5e",
   "lint-staged": {

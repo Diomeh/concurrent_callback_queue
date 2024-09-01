@@ -1,4 +1,6 @@
 /*
+ * @module @diomeh/concurrent_callback_queue
+ * @license MIT
  * Copyright 2024 David Urbina <davidurbina.dev@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
